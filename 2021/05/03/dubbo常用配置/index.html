@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="在这一篇中，对一些常用的配置参数进行记录。不保证准确，详情请见官方文档                     1、启动时检查       简单的讲，就是如果A服务依赖了B服务，那么A在启动时会检查B服务能否提供服务，即A服务在启动时能否从注册中心拿到B服务的引用，如果拿不到，则会阻止A服务的启动，默认是开启的。在服务上线的时候，最好开启，能提早发现问题，比如A服务启动时需要通过B服务加载一些数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dubbo常用配置">
+<meta property="og:url" content="http://yang-guirong.github.io/2021/05/03/dubbo%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="YGR BLOG">
+<meta property="og:description" content="在这一篇中，对一些常用的配置参数进行记录。不保证准确，详情请见官方文档                     1、启动时检查       简单的讲，就是如果A服务依赖了B服务，那么A在启动时会检查B服务能否提供服务，即A服务在启动时能否从注册中心拿到B服务的引用，如果拿不到，则会阻止A服务的启动，默认是开启的。在服务上线的时候，最好开启，能提早发现问题，比如A服务启动时需要通过B服务加载一些数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-03T14:20:22.000Z">
+<meta property="article:modified_time" content="2021-05-03T14:21:21.824Z">
+<meta property="article:author" content="ygr">
+<meta property="article:tag" content="dubbo">
+<meta name="twitter:card" content="summary"><title>dubbo常用配置 | YGR BLOG</title><link ref="canonical" href="http://yang-guirong.github.io/2021/05/03/dubbo%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/index"><span class="header-nav-menu-item__icon"><i class="home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/about/"><span class="header-nav-menu-item__icon"><i class="user"></i></span><span class="header-nav-menu-item__text">关于</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="th"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="archive"></i></span><span class="header-nav-menu-item__text">归档</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">YGR BLOG</div><div class="header-banner-info__subtitle">一位卑微的打工人</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">dubbo常用配置</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-05-03</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-05-03</span></span></div></header><div class="post-body"><p>在这一篇中，对一些常用的配置参数进行记录。不保证准确，详情请见<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://dubbo.apache.org/zh/docs/v2.7/user/examples/" >官方文档</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+
+        <h2 id="1、启动时检查"   >
+          <a href="#1、启动时检查" class="heading-link"><i class="fas fa-link"></i></a><a href="#1、启动时检查" class="headerlink" title="1、启动时检查"></a>1、启动时检查</h2>
+      <p>简单的讲，就是如果A服务依赖了B服务，那么A在启动时会检查B服务能否提供服务，即A服务在启动时能否从注册中心拿到B服务的引用，如果拿不到，则会阻止A服务的启动，默认是开启的。在服务上线的时候，最好开启，能提早发现问题，比如A服务启动时需要通过B服务加载一些数据等，如果B服务没有启动，则A服务没办法加载到数据，即便启动后也是有问题的。</p>
+<p><code>springboot</code>中关闭其配置一般使用配置文件的方式：</p>
+<p><code>application.properties</code></p>
+<figure class="highlight properties"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">dubbo.consumer.check</span>=<span class="string">false</span></span><br></pre></td></tr></table></div></figure>
+
+<p>也可使用注解指定单个服务关闭检查 <code>@DubboReference(check = false)</code></p>
+
+        <h2 id="2、集群容错"   >
+          <a href="#2、集群容错" class="heading-link"><i class="fas fa-link"></i></a><a href="#2、集群容错" class="headerlink" title="2、集群容错"></a>2、集群容错</h2>
+      <p>在集群调用失败时，Dubbo 提供了多种容错方案，缺省为 <code>failover</code> 重试。</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@DubboReference(cluster = &quot;fialfast&quot;)</span></span><br><span class="line"><span class="keyword">private</span> OrderService orderService;</span><br></pre></td></tr></table></div></figure>
+
+
+
+<p><strong>Failover Cluster</strong></p>
+<p>失败自动切换，当出现失败，重试其它服务器。通常用于读操作，但重试会带来更长延迟。可通过 <code>retries=&quot;2&quot;</code> 来设置重试次数(不含第一次)。</p>
+<p>注：为了保证接口幂等性，在写操作上不要使用重试，避免因网络波动重试导致的订单多次支付或多次插入数据库等情况。</p>
+<p><strong>Failfast Cluster</strong></p>
+<p>快速失败，只发起一次调用，失败立即报错。通常用于非幂等性的写操作，比如新增记录。</p>
+<p><strong>Failsafe Cluster</strong></p>
+<p>失败安全，出现异常时，直接忽略。通常用于写入审计日志等操作。</p>
+<p><strong>Failback Cluster</strong></p>
+<p>失败自动恢复，后台记录失败请求，定时重发。通常用于消息通知操作。</p>
+<p><strong>Forking Cluster</strong></p>
+<p>并行调用多个服务器，只要一个成功即返回。通常用于实时性要求较高的读操作，但需要浪费更多服务资源。可通过 <code>forks=&quot;2&quot;</code> 来设置最大并行数。</p>
+<p><strong>Broadcast Cluster</strong></p>
+<p>广播调用所有提供者，逐个调用，任意一台报错则报错。通常用于通知所有提供者更新缓存或日志等本地资源信息。</p>
+<p>现在广播调用中，可以通过 <code>broadcast.fail.percent</code> 配置节点调用失败的比例，当达到这个比例后，<code>BroadcastClusterInvoker</code> 将不再调用其他节点，直接抛出异常。 <code>broadcast.fail.percent</code> 取值在 0～100 范围内。默认情况下当全部调用失败后，才会抛出异常。 <code>broadcast.fail.percent</code> 只是控制的当失败后是否继续调用其他节点，并不改变结果(任意一台报错则报错)。<code>broadcast.fail.percent</code> 参数 在 dubbo2.7.10 及以上版本生效。</p>
+<p>Broadcast Cluster 配置 <code>broadcast.fail.percent</code>。</p>
+<p><code>broadcast.fail.percent=20</code> 代表了当 20% 的节点调用失败就抛出异常，不再调用其他节点。</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@reference(cluster = &quot;broadcast&quot;, parameters = &#123;&quot;broadcast.fail.percent&quot;, &quot;20&quot;&#125;)</span></span><br></pre></td></tr></table></div></figure>
+
+
+        <h2 id="3、负载均衡策略"   >
+          <a href="#3、负载均衡策略" class="heading-link"><i class="fas fa-link"></i></a><a href="#3、负载均衡策略" class="headerlink" title="3、负载均衡策略"></a>3、负载均衡策略</h2>
+      <p><strong>Random LoadBalance</strong>：<strong>随机</strong>，按权重设置随机概率。缺省配置为随机。</p>
+<p><strong>RoundRobin LoadBalance</strong>：<strong>轮询</strong>，按公约后的权重设置轮询比率。</p>
+<p><strong>LeastActive LoadBalance</strong>：<strong>最少活跃调用数</strong>，相同活跃数的随机，活跃数指调用前后计数差。</p>
+<p><strong>ConsistentHash LoadBalance</strong>：<strong>一致性 Hash</strong>，相同参数的请求总是发到同一提供者。</p>
+<p><code>springboot</code>中常用的配置方式如下：</p>
+<ul>
+<li><p>配置于提供者</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@DubboService(loadbalance = &quot;leastactive&quot;, methods = &#123;@Method(name = &quot;getOrder&quot;, loadbalance = &quot;roundrobin&quot;)&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderServiceImpl</span> <span class="keyword">implements</span> <span class="title">OrderService</span> </span>&#123;<span class="comment">/*...*/</span>&#125;</span><br></pre></td></tr></table></div></figure>
+
+<p>如上，接口中，除了<code>getOrder</code>方法是轮询方式，其余的都是最少活跃调用数方式（应该是这样？）</p>
+</li>
+<li><p>配置于消费者</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@DubboReference(loadbalance = &quot;leastactive&quot;, methods = &#123;@Method(name = &quot;getOrder&quot;, loadbalance = &quot;roundrobin&quot;)&#125;)</span></span><br><span class="line"><span class="keyword">private</span> OrderService orderService;</span><br></pre></td></tr></table></div></figure></li>
+</ul>
+<p>一般都是配置在服务级别，应该不至于配置到方法级别。</p>
+
+        <h2 id="4、只订阅不注册"   >
+          <a href="#4、只订阅不注册" class="heading-link"><i class="fas fa-link"></i></a><a href="#4、只订阅不注册" class="headerlink" title="4、只订阅不注册"></a>4、只订阅不注册</h2>
+      <p>即共用一个注册中心时，避免正在开发的提供者P1和消费者C1对当前注册中心所在环境下的稳定的P和C造成影响，即可配置提供者P1只订阅注册中心的其他服务，但是不将自己注册上去，避免其他消费者调用到P1导致出现问题。当然也可以指定一个独一无二的分组或版本号，这样也可以，但最好还是不要注册上去。</p>
+<figure class="highlight properties"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">dubbo.registry.register</span>=<span class="string">false</span></span><br></pre></td></tr></table></div></figure>
+
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 直连，如果版本号或分组不同，则也要指定，格式为：url=&quot;dubbo//ip:port&quot; 端口是rpc端口，不是应用端口</span></span><br><span class="line"><span class="meta">@DubboReference(check = false, group = &quot;ygrtest&quot;, version = &quot;1.0.0&quot;, url = &quot;dubbo://192.168.0.100:20885&quot;)</span></span><br></pre></td></tr></table></div></figure>
+
+
+        <h2 id="5、多协议"   >
+          <a href="#5、多协议" class="heading-link"><i class="fas fa-link"></i></a><a href="#5、多协议" class="headerlink" title="5、多协议"></a>5、多协议</h2>
+      <p>Dubbo 允许配置多协议，在不同服务上支持不同协议或者同一服务上同时支持多种协议。</p>
+<p>比如，文件上传等传输数据较大的接口，就不适合使用<code>dubbo</code>协议，可以更换为<code>http</code>协议，参考：<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://blog.csdn.net/qq_33355821/article/details/100133455" >https://blog.csdn.net/qq_33355821/article/details/100133455</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+
+        <h2 id="6、多分组-多版本"   >
+          <a href="#6、多分组-多版本" class="heading-link"><i class="fas fa-link"></i></a><a href="#6、多分组-多版本" class="headerlink" title="6、多分组/多版本"></a>6、多分组/多版本</h2>
+      <p>对于一个接口有多种实现的时候，可以使用不同的分组进行区分，在服务调用的时候指定分组即可，也可指定任意分组。</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 提供者针对特定个性化客户指定特定分组，比如适用于客户2的个性化接口分组</span></span><br><span class="line"><span class="meta">@DubboService(group = &quot;customer2&quot;, version = &quot;1.0.0&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 消费者，可指定多个分组，使用逗号分隔</span></span><br><span class="line"><span class="meta">@DubboReference(group = &quot;customer1,customer2&quot;, version = &quot;1.0.0&quot;)</span> </span><br><span class="line"><span class="comment">// 或通用接口，任意分组</span></span><br><span class="line"><span class="meta">@DubboReference(group = &quot;*&quot;, version = &quot;1.0.0&quot;)</span></span><br></pre></td></tr></table></div></figure>
+
+<blockquote>
+<p> 在这过程中，为了省事，<code>TestServiceImpl</code>同时实现了<code>TestService1</code>和<code>TestService2</code>接口，但是发现注册到注册中心的只有<code>TestService1</code>，将实现类岔开为两个分别实现后才在注册中心看到<code>TestService2</code>。当然，这个只是测试省事时发现的，一般开发过程中，也不会一个类同时实现两个不同的业务接口的。</p>
+</blockquote>
+<p>多版本与多分组一致，可以指定特定的版本号，也可使用<code>星号*</code>指定任意版本。</p>
+
+        <h2 id="7、参数验证"   >
+          <a href="#7、参数验证" class="heading-link"><i class="fas fa-link"></i></a><a href="#7、参数验证" class="headerlink" title="7、参数验证"></a>7、参数验证</h2>
+      <p>基于<code>JSR303</code>标准的验证需要添加如下<code>maven</code>依赖：</p>
+<figure class="highlight xml"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.validation<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>validation-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0.GA<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.hibernate<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hibernate-validator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.2.0.Final<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<p>具体的校验注解或自定义校验方式这里就不再过多叙述。</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 消费者端进行校验</span></span><br><span class="line"><span class="meta">@DubboReference(validation = true)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 提供者端进行校验</span></span><br><span class="line"><span class="meta">@DubboService(validation = true)</span></span><br></pre></td></tr></table></div></figure>
+
+
+        <h2 id="8、泛化调用"   >
+          <a href="#8、泛化调用" class="heading-link"><i class="fas fa-link"></i></a><a href="#8、泛化调用" class="headerlink" title="8、泛化调用"></a>8、泛化调用</h2>
+      <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://dubbo.apache.org/zh/docs/v2.7/user/examples/generic-reference/" >官方文档</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<figure class="highlight xml"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dubbo:reference</span> <span class="attr">id</span>=<span class="string">&quot;barService&quot;</span> <span class="attr">interface</span>=<span class="string">&quot;com.foo.BarService&quot;</span> <span class="attr">generic</span>=<span class="string">&quot;true&quot;</span> /&gt;</span></span><br></pre></td></tr></table></div></figure>
+
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GenericService barService = (GenericService) applicationContext.getBean(<span class="string">&quot;barService&quot;</span>);</span><br><span class="line">Object result = barService.$invoke(<span class="string">&quot;sayHello&quot;</span>, <span class="keyword">new</span> String[] &#123; <span class="string">&quot;java.lang.String&quot;</span> &#125;, <span class="keyword">new</span> Object[] &#123; <span class="string">&quot;World&quot;</span> &#125;);</span><br></pre></td></tr></table></div></figure>
+
+<p>通过API方式使用泛化可参考<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://www.cnblogs.com/penghq/p/13093901.html" >这篇博客</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>。</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="http://yang-guirong.github.io">ygr</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="http://yang-guirong.github.io/2021/05/03/dubbo%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE/">http://yang-guirong.github.io/2021/05/03/dubbo%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://yang-guirong.github.io/tags/dubbo/">dubbo</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2021/04/30/springboot%E7%AE%80%E5%8D%95%E6%95%B4%E5%90%88dubbo%E5%85%A5%E9%97%A8/"><span class="paginator-prev__text">spring boot简单整合dubbo入门</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%90%AF%E5%8A%A8%E6%97%B6%E6%A3%80%E6%9F%A5"><span class="toc-number">1.</span> <span class="toc-text">
+          1、启动时检查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99"><span class="toc-number">2.</span> <span class="toc-text">
+          2、集群容错</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%96%E7%95%A5"><span class="toc-number">3.</span> <span class="toc-text">
+          3、负载均衡策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E5%8F%AA%E8%AE%A2%E9%98%85%E4%B8%8D%E6%B3%A8%E5%86%8C"><span class="toc-number">4.</span> <span class="toc-text">
+          4、只订阅不注册</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E5%A4%9A%E5%8D%8F%E8%AE%AE"><span class="toc-number">5.</span> <span class="toc-text">
+          5、多协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E5%A4%9A%E5%88%86%E7%BB%84-%E5%A4%9A%E7%89%88%E6%9C%AC"><span class="toc-number">6.</span> <span class="toc-text">
+          6、多分组&#x2F;多版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7%E3%80%81%E5%8F%82%E6%95%B0%E9%AA%8C%E8%AF%81"><span class="toc-number">7.</span> <span class="toc-text">
+          7、参数验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8%E3%80%81%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8"><span class="toc-number">8.</span> <span class="toc-text">
+          8、泛化调用</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">3</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">3</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script></body></html>
