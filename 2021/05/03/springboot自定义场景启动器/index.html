@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yang-guirong.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在开发过程中，我们有时需要根据业务场景抽取一些基础配置作为模块的底层依赖，类似spring-boot-starter-data-redis等。对于一些静态工具类，不需要配置到spring容器中的，那自然是直接引入maven依赖即可，但对于包名不同的（springboot只会扫描主启动类即下面的包）组件，是不会扫描的，需要我们额外配置包扫描或添加自动装配配置。此篇就使用一个例子简单实现自定义的场景启">
+<meta property="og:type" content="article">
+<meta property="og:title" content="springboot自定义场景启动器">
+<meta property="og:url" content="http://yang-guirong.github.io/2021/05/03/springboot%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9C%BA%E6%99%AF%E5%90%AF%E5%8A%A8%E5%99%A8/index.html">
+<meta property="og:site_name" content="YGR BLOG">
+<meta property="og:description" content="在开发过程中，我们有时需要根据业务场景抽取一些基础配置作为模块的底层依赖，类似spring-boot-starter-data-redis等。对于一些静态工具类，不需要配置到spring容器中的，那自然是直接引入maven依赖即可，但对于包名不同的（springboot只会扫描主启动类即下面的包）组件，是不会扫描的，需要我们额外配置包扫描或添加自动装配配置。此篇就使用一个例子简单实现自定义的场景启">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094401.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094535.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094544.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094557.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094627.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094636.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094645.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094711.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094728.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094735.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094744.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094751.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094815.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094822.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094829.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094840.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094850.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094909.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095058.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095103.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095155.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095219.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095235.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095245.png">
+<meta property="og:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095307.png">
+<meta property="article:published_time" content="2021-05-03T14:57:22.000Z">
+<meta property="article:modified_time" content="2021-05-03T15:15:49.995Z">
+<meta property="article:author" content="ygr">
+<meta property="article:tag" content="springboot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094401.png">
+
+<link rel="canonical" href="http://yang-guirong.github.io/2021/05/03/springboot%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9C%BA%E6%99%AF%E5%90%AF%E5%8A%A8%E5%99%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>springboot自定义场景启动器 | YGR BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">YGR BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">卑微打工人的知识沉淀</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yang-guirong.github.io/2021/05/03/springboot%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9C%BA%E6%99%AF%E5%90%AF%E5%8A%A8%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ygr">
+      <meta itemprop="description" content="个人技术知识沉淀">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="YGR BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          springboot自定义场景启动器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-05-03 22:57:22 / 修改时间：23:15:49" itemprop="dateCreated datePublished" datetime="2021-05-03T22:57:22+08:00">2021-05-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springboot/" itemprop="url" rel="index"><span itemprop="name">springboot</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在开发过程中，我们有时需要根据业务场景抽取一些基础配置作为模块的底层依赖，类似<code>spring-boot-starter-data-redis</code>等。对于一些静态工具类，不需要配置到<code>spring</code>容器中的，那自然是直接引入<code>maven</code>依赖即可，但对于包名不同的（<code>springboot</code>只会扫描主启动类即下面的包）组件，是不会扫描的，需要我们额外配置包扫描或添加自动装配配置。此篇就使用一个例子简单实现自定义的场景启动器，并根据不同的方式注入我们需要的组件。</p>
+<span id="more"></span>
+
+<p>1、idea先创建一个空工程</p>
+<p>2、工程创建好了之后，添加一个maven模块作为启动器，该模块中不添加任何依赖，就是一个普通的maven项目</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094401.png" alt="img"></p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094535.png" alt="img"></p>
+<p>3、创建一个springboot模块，可以不添加任何依赖，这里添加一个 <code>spring-boot-configuration-processor</code> ，同时删除test依赖以及build插件，并且删除类路径下的主程序启动类以及资源文件，如下所示</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094544.png" alt="img"></p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094557.png" alt="img"></p>
+<p>让启动器模块依赖自动配置模块</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094627.png" alt="img"></p>
+<p>4、写一个属性类<code>HelloProperties</code></p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094636.png" alt="img"></p>
+<p>5、写一个<code>HelloService</code>，并添加一个sayHello方法</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094645.png" alt="img"></p>
+<p>6、写一个配置类<code>HelloServiceAutoConfiguration</code>，让<code>HelloService</code>生效</p>
+<p>在配置类中使用<code>@Configuration</code>声明这是一个配置类，再使用<code>@ConditionalOnXXX</code>来声明条件，表示只有在满足条件的情况下，这个配置类才会生效，并使用<code>@EnableConfigurationProperties</code>注解让刚刚写的属性文件生效，如下</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094711.png" alt="img"></p>
+<p>7、要想让自动配置生效，还有重要的一步。首先在类路径下创建一个包 <code>META-INF</code>，里面添加一个文件<code>spring.factories</code></p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094728.png" alt="img"></p>
+<p>配置方式可参考springboot的自动配置方式</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094735.png" alt="img"></p>
+<p>将需要自动配置的类添加到文件中</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094744.png" alt="img"></p>
+<p>到这里，自动配置模块完成</p>
+<p>8、将依赖安装到本地仓库中，注意安装的先后顺序</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094751.png" alt="img"></p>
+<p>9、创建一个新的springboot项目来测试启动器能否正常工作</p>
+<p>添加web环境依赖（前面的配置类中使用<code>@ConditionOnWebApplication</code>注解，所以只有在web环境下才会生效）以及自定义的依赖</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094815.png" alt="img"></p>
+<p>10、写一个controller来进行测试</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094822.png" alt="img"></p>
+<p>11、为属性类<code>HelloProperties</code>绑定属性</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094829.png" alt="img"></p>
+<p>这里可以看到，属性有提示信息，并且能自动完成，这是因为在自动配置模块中添加了 <code>spring-boot-configuration-processor</code></p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094840.png" alt="img"></p>
+<p>12、启动项目成功，没有报错，说明<code>HelloService</code> 已经注入进来了，接着打开浏览器请求hello，发现能正常打印<code>sayHello</code>方法内返回的数据</p>
+<p>如果遇到属性文件中的中文取值乱码，可以设置一下编码再重新编译一下</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094850.png" alt="img"></p>
+<p>如果还是乱码，往配置文件中添加一行</p>
+<blockquote>
+<p><code>spring.http.encoding.enabled=true</code></p>
+</blockquote>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429094909.png" alt="img"></p>
+<p>13、接下来进行一下改造，去掉META-INF，去掉<code>@ConditionOnWebApplication</code>注解，使用开关的方式来开启自动配置</p>
+<p>定义一个 <code>EnableHelloService</code> 注解，此注解中导入<code>HelloServiceAutoConfiguration</code>配置类，如下</p>
+<blockquote>
+<p><code>@Import(HelloServiceConfiguration.class)</code></p>
+</blockquote>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095058.png" alt="img"></p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095103.png" alt="img"></p>
+<p>重新install安装到本地仓库</p>
+<p>14、测试项目中在配置类中添加开关注解，由于测试项目中没有自定义配置类，所以将开关添加到主配置类上</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095155.png" alt="img"></p>
+<p>启动项目，没有报错，说明使用开关的形式也是可以的，而且这样也是很方便</p>
+<p>15、回到自动配置那里，再来测试一个注解，<code>@ConditionOnProperty</code></p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095219.png" alt="img"></p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095235.png" alt="img"></p>
+<p>install安装到本地</p>
+<p>在测试项目中去掉主配置类上的开关，因为这个开关注解已经被删掉了，直接启动项目，发现报错了</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095245.png" alt="img"></p>
+<p>从报错信息中可以看到，<code>HelloService</code>没有加载到容器中，因为没有属性 <code>hello.starter.enabled</code>，所以属性条件 <code>hello.starter.enabled=true</code> 不满足，导致<code>HelloServiceAutoConfiguration</code>配置类没有生效，<code>HelloService</code>才没有注入到容器中</p>
+<p>在配置信息中加上条件，再重新启动，一切正常</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210429095307.png" alt="img"></p>
+<p>16、总结</p>
+<p>两个模块，一个是普通的maven项目，里面只有一个<code>pom</code>文件，这个就是启动器，专门用来管理依赖的，其他模块中也只需要引入这个启动器就行，这个<code>pom</code>文件中依赖了具体的配置模块</p>
+<p>配置模块中，定义了一些配置类，这些配置类中使用<code>@Bean</code>等方式往容器中注册了一些bean，但默认这个配置类是不生效的，要想让它生效，可以通过META-INF中的<code>spring.factories</code>文件中的自动配置开关中添加需要自动配置的类 <code>org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.xxx.MyConfiguration</code></p>
+<p>根据不同场景，可以使用<code>@ConditionOnXXX</code>注解在配置类上，让配置类在不同的场景下生效，这样比较灵活多变，后期只需要修改配置文件即可，也可使用自定义注解<code>@EnableXXX</code>来开启，在其中使用@Import来导入组件（配置类）</p>
+<p>一般情况下，业务模块与启动器的包名是不相同的，业务模块在启动的时候，默认只会扫描主启动类下的包，若需要将启动器下的多个包里面的组件都添加到容器中，则可以在启动器中的自动配置类上使用<code>@ComponentScan</code>注解，将启动器中需要的包都给包含进来。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/springboot/" rel="tag"># springboot</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/03/springboot%E7%AE%80%E5%8D%95%E6%95%B4%E5%90%88redis/" rel="prev" title="springboot简单整合redis">
+      <i class="fa fa-chevron-left"></i> springboot简单整合redis
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ygr</p>
+  <div class="site-description" itemprop="description">个人技术知识沉淀</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ygr</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
