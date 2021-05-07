@@ -20,10 +20,6 @@
 <link rel="stylesheet" href="/css/style.css">
 
   
-    
-<link rel="stylesheet" href="/css/plugins/gitment.css">
-
-  
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
@@ -32,10 +28,6 @@
 <script src="/js/qrious.js"></script>
 
   
-  
-    
-<script src="/js/gitment.js"></script>
-
   
   
   
@@ -98,6 +90,12 @@
       
         <li class="list-item">
           
+            <a href="/categories/" class="item-link">Categories</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
             <a href="/about/" class="item-link">About</a>
           
         </li>
@@ -131,6 +129,12 @@
         
           <li class="menu-item">
             
+              <a href="/categories/" class="menu-link">Categories</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
               <a href="/about/" class="menu-link">About</a>
             
           </li>
@@ -141,6 +145,31 @@
 </header>
 
     <main class="app-body">
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/05/06/spring%E4%B8%AD%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">spring中观察者模式的简单使用</a>
+      </h2>
+      <p class="article-date">2021年5月6日</p>
+      
+        
+  <a href="/tags#设计模式" >
+    <span class="tag-code">设计模式</span>
+  </a>
+
+  <a href="/tags#springboot" >
+    <span class="tag-code">springboot</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          <p>最近在项目中用到了<code>spring</code>的观察者模式，在此简单记录模拟一下。</p>
+<p>假定有这么一个请假流程，主要分为两个事件，当事人提交请假 + 领导审核。每个事件下都会对应多个处理逻辑，如审核事件，需要处理请假单，需要记录日志，需要归档等一系列操作，可能后续还需要加入更多的处理逻辑，为了便于扩展，我们可使用观察者模式，每次需要扩充新功能，只需要添加新的监听器即可，不需要对原先的代码进行修改。接下来就使用观察者模式来简单模拟一下这两个事件。</p>
+        
+      </div>
+      <a class="more" href="/2021/05/06/spring%E4%B8%AD%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">Read more</a>
+    </article>
   
     <article class="article-card">
       <h2 class="article-head">
@@ -178,8 +207,6 @@
         
           <p><code>springboot</code>整合<code>redis</code>的博客，各大论坛都有不少，在这里只是简单的做一下配置笔记。</p>
 <p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/caizhaokai/p/11037610.html">https://www.cnblogs.com/caizhaokai/p/11037610.html</a></p>
-<p>1、<code>pom.xml</code></p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-redis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span>  </span><br></pre></td></tr></table></figure>
         
       </div>
       <a class="more" href="/2021/05/03/springboot%E7%AE%80%E5%8D%95%E6%95%B4%E5%90%88redis/">Read more</a>
