@@ -145,72 +145,33 @@
 </header>
 
     <div id="article-banner">
-  <h2>Archives</h2>
-  <p class="post-date">文章归档</p>
+    <h2>Categories</h2>
+    <p class="post-date">分类检索</p>
 </div>
-<main class="app-body" id="archives">
-  
-  
-  
-    <section class="time-section">
-  <h1 class="section-year">
-    2021
-  </h1>
-  <div class="section-list">
+
+<main class="app-body" id="category">
     
     
-      <div class="section-list-item">
-        <a href="/2021/05/21/%E7%AE%97%E6%B3%95-%E6%A0%91/" class="archive-title">算法-树</a>
-        <p class="archive-date">05-21</p>
-      </div>
-    
-      <div class="section-list-item">
-        <a href="/2021/05/21/mysql%E7%B4%A2%E5%BC%95/" class="archive-title">mysql索引</a>
-        <p class="archive-date">05-21</p>
-      </div>
-    
-      <div class="section-list-item">
-        <a href="/2021/05/06/spring%E4%B8%AD%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/" class="archive-title">spring中观察者模式的简单使用</a>
-        <p class="archive-date">05-06</p>
-      </div>
-    
-      <div class="section-list-item">
-        <a href="/2021/05/03/springboot%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9C%BA%E6%99%AF%E5%90%AF%E5%8A%A8%E5%99%A8/" class="archive-title">springboot自定义场景启动器</a>
-        <p class="archive-date">05-03</p>
-      </div>
-    
-      <div class="section-list-item">
-        <a href="/2021/05/03/springboot%E7%AE%80%E5%8D%95%E6%95%B4%E5%90%88redis/" class="archive-title">springboot简单整合redis</a>
-        <p class="archive-date">05-03</p>
-      </div>
-    
-      <div class="section-list-item">
-        <a href="/2021/05/03/dubbo%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE/" class="archive-title">dubbo常用配置</a>
-        <p class="archive-date">05-03</p>
-      </div>
-    
-      <div class="section-list-item">
-        <a href="/2021/04/30/springboot%E7%AE%80%E5%8D%95%E6%95%B4%E5%90%88dubbo%E5%85%A5%E9%97%A8/" class="archive-title">spring boot简单整合dubbo入门</a>
-        <p class="archive-date">04-30</p>
-      </div>
-    
-      <div class="section-list-item">
-        <a href="/2021/04/30/zookeeper%E5%AE%89%E8%A3%85/" class="archive-title">zookeeper安装</a>
-        <p class="archive-date">04-30</p>
-      </div>
-    
-  </div>
-</section>
-  
+    <div class="category-list">
+        <h3 class="category-name" id="category-mysql">mysql</h3>
+        
+            <ul class="category-preview">
+                <li>
+                    <a href="/2021/05/21/mysql索引/">mysql索引</a>
+                </li>
+            </ul>
+        
+    </div>
 </main>
 
 <script>
-  (function () {
-    var url = 'http://yang-guirong.github.io/archives/2021/04/index.html';
-    $('#article-banner').geopattern(url);
-    $('.header').removeClass('fixed-header');
-  })();
+    (function () {
+        var url = 'http://yang-guirong.github.io/categories/mysql/index.html';
+        $('#article-banner').geopattern(url);
+        $('.header').removeClass('fixed-header');
+    })();
 </script>
+
     <div class="scroll-top">
   <span class="arrow-icon"></span>
 </div>

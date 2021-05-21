@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="个人技术知识沉淀">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      mysql索引 | YGR BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>YGR BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/categories/" class="item-link">Categories</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/categories/" class="menu-link">Categories</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>mysql索引</h2>
+  <p class="post-date">2021-05-21</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>最近由于找工作，打算补一补mysql索引相关的知识，于是在B站上看了<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1YX4y1M7Sd">面试必刷：最有用的Mysql面试题，面试了无数公司总结进大厂必备</a> 系列视频，整体讲的还可以，在看的同时也相应的做了一下笔记，便于理解和加深记忆，涉及到常用引擎的简单介绍、InnoDB和MyISAM的简单区别、B树和B+树、回表、索引覆盖、索引下推、最左匹配等知识点，用于应对mysql面试。</p>
+<span id="more"></span>
+
+<h2 id="一、mysql常用引擎"><a href="#一、mysql常用引擎" class="headerlink" title="一、mysql常用引擎"></a>一、mysql常用引擎</h2><ul>
+<li>InnoDB：B+树</li>
+<li>MyIASM：B+树</li>
+<li>MEMORY：Hash</li>
+</ul>
+<p>InnoDB也支持hash，只是它是自适应hash，用户无法手动干预。</p>
+<h2 id="二、为何不使用二叉树或红黑树"><a href="#二、为何不使用二叉树或红黑树" class="headerlink" title="二、为何不使用二叉树或红黑树"></a>二、为何不使用二叉树或红黑树</h2><p>二叉树或红黑树，会因为树的深度过深而造成io次数变多，影响数据读取效率。</p>
+<p>计算机系统是分页读取和存储的，一般<strong>一页为4KB</strong>（8个扇区，每个扇区125B，8*125B=4KB），每次读取和存取的最小单元为一页，而磁盘预读时通常会读取页的整倍数。根据文章上述的【局部性原理】①当一个数据被用到时，其附近的数据也通常会马上被使用。②程序运行期间所需要的数据通常比较集中。由于磁盘顺序读取的效率很高（不需要寻道时间，只需很少的旋转时间），所以即使只需要读取一个字节，磁盘也会读取一页的数据。</p>
+<p>至于磁盘分页，参考计算机操作系统的分页，分段存储管理——逻辑地址和物理地址被分为大小相同的页面，逻辑地址中叫页，物理地址中叫块。</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/xd_1437/article/details/103253632">https://blog.csdn.net/xd_1437/article/details/103253632</a></p>
+<p>InnoDB默认一次从磁盘读取16KB的数据，即4K*4</p>
+<h2 id="三、B树"><a href="#三、B树" class="headerlink" title="三、B树"></a>三、B树</h2><p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210521231744.png" alt="image-20210521195514486"></p>
+<p>如上，假设一条数据占1KB，即data的大小为1KB，在不考虑键值（紫色）和指针（绿色）的大小时，因为InnoDB一个磁盘块的大小是16KB，所以第一层，最多16条数据，也就是一个磁盘块16条数据，一个磁盘块对应16个键值和16个指针，每个指针对应一个磁盘块，所以第二层最多为16个磁盘块，第三层最多为16x16=64个磁盘块，也就是说三层B树，可存储的最大数据量为16x16x16=4096个数据，这还是忽略了键值和指针的大小之后的。</p>
+<h2 id="四、B-树"><a href="#四、B-树" class="headerlink" title="四、B+树"></a>四、B+树</h2><p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210521231724.png" alt="image-20210521202806972"></p>
+<p>如上，B+树，将所有的数据全部放到了叶子节点中，键值会存在重复。假设一个指针（红色）与一个键值（绿色）的大小之和为10B，则第一层一个磁盘块共16KB就可以存16000/10=1600个指针加键值的组合，而每个指针又指向第二层的一个磁盘块，所以第二层最多有1600个磁盘块，第二层的每一个指针都指向第三层的一个磁盘块，第三层的一个磁盘块最多可存16KB/1KB=16个数据，所以三层的B+树最多可存储1600x1600x16的数据，是B树的将近10000倍。</p>
+<h2 id="五、树的度degree"><a href="#五、树的度degree" class="headerlink" title="五、树的度degree"></a>五、树的度degree</h2><p>先解释一下树的度和结点数的关系</p>
+<blockquote>
+<p> 叶子结点就是没有孩子的结点，其度为0，度为二的结点是指有两个子数的结点。比如一棵完全二叉树有三层，叶子结点就是最下面那一层的结点数，没有孩子结点，就是4，度为二的结点有3个。</p>
+</blockquote>
+<p>实际中，如上面的B+树，根结点的度数，是由索引字段决定的，假如某个int类型键值（加指针）大小为s，则根结点度数就是16KB/s。所以在设计索引的时候，需要考虑每个键值所占空间。比如int类型、varchar类型、text类型，在创建索引的时候，肯定是首选int类型来创建索引，其他的类型会占用更多的空间，导致度变小，自然就会加深树的深度，IO次数自然也会增加。</p>
+<h2 id="六、InnoDB与MyISAM的B-树节点区别"><a href="#六、InnoDB与MyISAM的B-树节点区别" class="headerlink" title="六、InnoDB与MyISAM的B+树节点区别"></a>六、InnoDB与MyISAM的B+树节点区别</h2><p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210521231801.png" alt="image-20210521212325110"></p>
+<blockquote>
+<p>InnoDB通过B+Tree结构对主键创建索引，然后叶子节点中存储记录，如果没有主键，那么会选择唯一键，如果没有唯一键，那么会生成一个6子节的row_id来作为主键。</p>
+</blockquote>
+<blockquote>
+<p>如果创建索引的键是其他字段，那么在叶子节点中存储的是该记录的<strong>主键</strong>，然后再通过主键索引找到对应的记录，这个过程叫做<strong>回表</strong>。</p>
+</blockquote>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210521231813.png" alt="image-20210521213554581"></p>
+<p>如果是MyISAM，则叶子节点中存放的是数据的地址。</p>
+<p>因此对于InnoDB，一个表对应两个文件，<code>tableName.frm</code>和<code>tableName.idb</code>，frm存储的是表的一个结构，而idb存储的是表的索引和数据。</p>
+<p>MyISAM则对应三个文件，<code>tableName.frm</code>、<code>tableName.MYD</code>、<code>tableName.MYI</code>，frm与InnoDB一样，存储的是表的结构，MYI存储的是索引，MYD存储的才是真正的数据。</p>
+<h2 id="七、为啥建议自增主键"><a href="#七、为啥建议自增主键" class="headerlink" title="七、为啥建议自增主键"></a>七、为啥建议自增主键</h2><p>B+树中，如果是自增主键，那么在查询数据时的索引效率自然不必说，在插入数据的时候，每次都是往最后面插入，如果是乱序的主键，则在插入的数据就有很大可能会往中间的某个块进行插入，如果这个块已经满了，那么就涉及到<strong>页分裂</strong>，也就意味着有<strong>页合并</strong>。每次页分裂及页合并都会影响到上级节点，在并发量大的时候，会非常影响性能。所以在单机中强烈推荐自增以减少页分裂和页合并的次数，在分布式中，则大多使用<strong>雪花算法</strong>来生成主键。</p>
+<h2 id="八、回表"><a href="#八、回表" class="headerlink" title="八、回表"></a>八、回表</h2><p>假设user表两个字段，一个主键索引id，另一个普通索引name，在使用name字段作为查询条件时，如<code>select * from user where name=&#39;张三&#39;</code>，此时会先走name索引对应的B+树，找到对应叶子节点，叶子节点存的是这个数据对应的主键，再通过这个主键去查id字段对应的主键B+树，最终找到对应的数据。</p>
+<p>InnoDB有两类索引，聚焦索引（主键索引）和二级索引（非主键索引），如果是主键查询，则根据主键直接就能找到对应的数据，如果使用非主键索引查询，则先走非主键索引树，再走主键索引树，会增加IO次数，效率会变低，所以查询数据时推荐使用主键索引进行查询。</p>
+<h2 id="九、索引覆盖"><a href="#九、索引覆盖" class="headerlink" title="九、索引覆盖"></a>九、索引覆盖</h2><p>还是接着上面的user表，假设有两个sql语句，第一个是<code>select * from user where name=&#39;张三&#39;</code>，第二个是<code>select id from user where name=&#39;张三&#39;</code>，这两个sql语句中，第一个会发生回表，但第二个不会发生回表，因为第二个在name字段对应的索引树中的查询结果就是主键id，不需要再到id主键索引树中再查一次了。</p>
+<h2 id="十、最左匹配"><a href="#十、最左匹配" class="headerlink" title="十、最左匹配"></a>十、最左匹配</h2><p>最左匹配涉及到组合索引，假设user表中，创建了一个组合索引<code>idx_n_a(name,age)</code>，索引字段是name和age，会出现下面4种情况：</p>
+<ul>
+<li>where name=? and age=?</li>
+<li>where name=?</li>
+<li>where age=?</li>
+<li>where age=? and name=?</li>
+</ul>
+<p>最左匹配就类似于查找地址，先查询省再查询市，最后才是查询区。所以在上面的<code>idx_n_a</code>这个索引中，只有走了name才会走age，所以上面的4个语句中，第一个和第二个肯定是会走索引的，第三个不会走索引，但第四个也是<strong>会走索引</strong>的。</p>
+<p>为啥第四个会走呢，原因在于mysql的<strong>优化器</strong>，优化器，一种是CBO（基于成本的优化），另一种是RBO（基于规则的优化），现在的数据库大多都是CBO。</p>
+<p>在上面的第四个语句中，优化器会将name字段和age字段的顺序进行调整，所以最终会走索引。</p>
+<h2 id="十一、索引下推"><a href="#十一、索引下推" class="headerlink" title="十一、索引下推"></a>十一、索引下推</h2><p><code>select * from user where name=? and age=?</code></p>
+<p>在没有索引下推之前（5.6还是5.7版本前），mysql会先从存储引擎中拉取数据（根据name进行筛选），拉取到数据后，mysql server再根据age进行数据筛选；</p>
+<p>有了索引下推后，拉取数据的时候直接根据name和age来获取数据，不需要server进行数据筛选。</p>
+<p>索引下推唯一的缺点就是需要在磁盘上多做数据筛选，原来的筛选是放在内存中的，现在放到了磁盘中进行查找数据的环节，这样做看起来成本较高，但是别忘了，数据是排序的，所有的数据是聚集存放的，所以性能上不会有影响，反而会因为大大减少了IO量而提升性能，而且现在的磁盘性能也远比以前的高。</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#mysql" >
+    <span class="tag-code">mysql</span>
+  </a>
+
+  <a href="/tags#mysql索引" >
+    <span class="tag-code">mysql索引</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/05/06/spring%E4%B8%AD%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">
+        <span class="nav-arrow">← </span>
+        
+          spring中观察者模式的简单使用
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/05/21/%E7%AE%97%E6%B3%95-%E6%A0%91/">
+        
+          算法-树
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- No Comment -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%80%E3%80%81mysql%E5%B8%B8%E7%94%A8%E5%BC%95%E6%93%8E"><span class="toc-nav-text">一、mysql常用引擎</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%BA%E4%BD%95%E4%B8%8D%E4%BD%BF%E7%94%A8%E4%BA%8C%E5%8F%89%E6%A0%91%E6%88%96%E7%BA%A2%E9%BB%91%E6%A0%91"><span class="toc-nav-text">二、为何不使用二叉树或红黑树</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%89%E3%80%81B%E6%A0%91"><span class="toc-nav-text">三、B树</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%9B%9B%E3%80%81B-%E6%A0%91"><span class="toc-nav-text">四、B+树</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%94%E3%80%81%E6%A0%91%E7%9A%84%E5%BA%A6degree"><span class="toc-nav-text">五、树的度degree</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%85%AD%E3%80%81InnoDB%E4%B8%8EMyISAM%E7%9A%84B-%E6%A0%91%E8%8A%82%E7%82%B9%E5%8C%BA%E5%88%AB"><span class="toc-nav-text">六、InnoDB与MyISAM的B+树节点区别</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%83%E3%80%81%E4%B8%BA%E5%95%A5%E5%BB%BA%E8%AE%AE%E8%87%AA%E5%A2%9E%E4%B8%BB%E9%94%AE"><span class="toc-nav-text">七、为啥建议自增主键</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%85%AB%E3%80%81%E5%9B%9E%E8%A1%A8"><span class="toc-nav-text">八、回表</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B9%9D%E3%80%81%E7%B4%A2%E5%BC%95%E8%A6%86%E7%9B%96"><span class="toc-nav-text">九、索引覆盖</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8D%81%E3%80%81%E6%9C%80%E5%B7%A6%E5%8C%B9%E9%85%8D"><span class="toc-nav-text">十、最左匹配</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E7%B4%A2%E5%BC%95%E4%B8%8B%E6%8E%A8"><span class="toc-nav-text">十一、索引下推</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://yang-guirong.github.io/2021/05/21/mysql索引/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>
