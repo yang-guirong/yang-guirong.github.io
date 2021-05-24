@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="个人技术知识沉淀">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      centos7下rabbitmq详细图文安装记录 | YGR BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>YGR BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>centos7下rabbitmq详细图文安装记录</h2>
+  <p class="post-date">2021-05-24</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>当今市面上有很多主流的消息中间件，如<code>ActiveMQ</code>、<code>RabbitMQ</code>，<code>Kafka</code>，以及阿里巴巴自主开发<code>RocketMQ</code>等。这些消息中间件各有长短，但如今市面上使用最多的应该还是<code>rabbitmq</code>，社区也十分活跃。这篇文章中就来简单记录下<code>rabbitmq</code>在<code>centos7</code>环境下的安装及配置过程。这里选择版本是目前最新版<code>3.8.16</code>，其他版本的安装可能不适用，仅供参考。</p>
+<span id="more"></span>
+
+<p>几乎所有步骤中都有截图说明，由于分屏后分辨率太高，截取的图片太大，太占页面，所以使用的是渣渣笔记本100%缩放下屏幕截图，看起来不是很清晰，大家凑合着看哈。如果有什么地方写错了，或者各位大佬有什么补充，也欢迎大家进行评论。</p>
+<h2 id="一、下载Erlang"><a href="#一、下载Erlang" class="headerlink" title="一、下载Erlang"></a>一、下载<code>Erlang</code></h2><p><code>rabbitmq</code>是使用<code>Erlang</code>语言开发的，所以在安装<code>rabbitmq</code>之前，需要先安装<code>Erlang</code>。不同版本的<code>rabbitmq</code>对<code>Erlang</code>语言的版本要求不同，具体可根据官网列出的依赖关系选择，<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/which-erlang.html">点击查看</a>。先进入<a target="_blank" rel="noopener" href="https://packagecloud.io/rabbitmq/erlang"><code>Erlang</code>下载地址</a>下载<code>Erlang</code>。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/bcf4ec7520b0c43671c89660920a0793.png" alt="image-20210512205234750"></p>
+<p>点击链接，跳转后的页面如下所示</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/729bbe68645cce13619fc2a679dc7509.png" alt="image-20210512211257693"></p>
+<p>可以点击右上角下载到本地，再上传，也可以使用截图右下角中展示的<code>wget</code>命令直接下载到服务器上，还可以直接使用截图中间展示的<code>yum</code>命令直接安装。这里我选择先下载到本地（本地备个份），再通过<code>ftp</code>上传到服务器。</p>
+<h2 id="二、下载rabbitmq-3-8-16"><a href="#二、下载rabbitmq-3-8-16" class="headerlink" title="二、下载rabbitmq 3.8.16"></a>二、下载<code>rabbitmq 3.8.16</code></h2><p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/install-rpm.html#downloads">下载地址</a>，选择<code>centos7</code>的，下载到本地。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/559d9c7b3281236ad1308dd9ee736581.png" alt="image-20210512204913385"></p>
+<h2 id="三、安装"><a href="#三、安装" class="headerlink" title="三、安装"></a>三、安装</h2><p>将上面两步中下载的安装包通过<code>ftp</code>上传到服务器的 <code>/opt/software/rabbitmq</code> 位置，然后进行安装。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/cb95ab535c262e72cb2617ce8d1de793.png" alt="image-20210512211654775"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入上述安装包下载位置</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /opt/software/rabbitmq</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装Erlang</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> rpm -ivh erlang-23.3.3-1.el7.x86_64.rpm</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装rabbitmq</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> rpm -ivh rabbitmq-server-3.8.16-1.el7.noarch.rpm</span></span><br></pre></td></tr></table></figure>
+
+<p>在执行上述安装命令中，<code>Erlang</code>安装成功了，但在安装<code>rabbitmq</code>时却失败了，提示缺少<code>socat</code>依赖，如下图所示。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/80b9ec20629cc2a31c5910b0a40f2056.png" alt="image-20210512212147876"></p>
+<p><code>socat</code>是一个多功能的网络工具，名字来源于<code>SOcket CAT</code>，是<code>netcat</code>的增强版。这里我使用的是<code>yum</code>命令进行安装。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> yum install socat -y</span></span><br></pre></td></tr></table></figure>
+
+<p><code>socat</code>安装完毕后，再来安装<code>rabbitmq</code>，这一次安装成功了。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/a36a371e04eacad370928285f5c78ab2.png" alt="image-20210512213034000"></p>
+<p>安装成功后，尝试启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 在任意目录下执行下面的命令，rabbitmq-server可以通过tab建补全（我这里纯手打），可以不加.service后缀</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> systemctl start rabbitmq-server</span></span><br></pre></td></tr></table></figure>
+
+<p>然后查看启动了哪些进程</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/2d4e2e074145bcd992598b63fa91052e.png" alt="image-20210512231920921"></p>
+<p>可以通过<code>systemctl status rabbitmq-server</code>命令查看启动状态</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/3a5d87e8d36a06cae51a75ae7138ccdd.png" alt="image-20210512232120347"></p>
+<p>从上图中可以看到<code>rabbitmq</code>已经成功启动起来了。</p>
+<p>如果需要关闭，则可以通过<code>systemctl stop rabbitmq-server</code>即可。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 启动</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> systemctl start rabbitmq-server</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看状态</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> systemctl status rabbitmq-server</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 重启</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> systemctl restart rabbitmq-server</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 关闭</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> systemctl stop rabbitmq-server</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="四、开启图形化管理界面插件"><a href="#四、开启图形化管理界面插件" class="headerlink" title="四、开启图形化管理界面插件"></a>四、开启图形化管理界面插件</h2><p>使用过<code>rabbitmq</code>的应该都知道，<code>rabbitmq</code>是自带了图形化操作界面插件的，端口默认是<code>15672</code>。图形化界面插件默认是关闭状态，可以通过下述命令进行开启：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> rabbitmq-plugins <span class="built_in">enable</span> rabbitmq_management</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/53a57ad4c3514f99a0aa02a2dfb12f4a.png" alt="image-20210512234206438"></p>
+<p>启用插件命令执行完毕后，可以通过<code>lsof -i:&lt;端口&gt;</code>命令查看一下端口状态</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/37d06d8d38e58cdc4b3aef2707284af7.png" alt="image-20210512234440042"></p>
+<p>接下来通过浏览器访问一下，<code>http://ip:15672</code>，默认用户名和密码都是<code>guest</code>。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/4a2326835415818067d63099be38c4a1.png" alt="image-20210512234723511"></p>
+<p>登录的时候却发现报错了，如上图所示，翻译过来就是说“该用户只能在本地主机进行登录”，这是<code>rabbitmq</code>默认的访问控制，详情可查看官网相关的配置说明，地址在<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#config-file">这里</a>，后面在配置一节中我会单独进行说明。</p>
+<p>既然只能在本地登录，那我就到<code>VMware</code>中直接操作好了</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/b2e761419232b9e6e9d2d4da2a992f14.png" alt="image-20210512235640291"></p>
+<p>登录成功后看到我们熟悉的页面了</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/f4a5543b589f5cc35de295ae752bc189.png" alt="image-20210512235901185"></p>
+<p>在接下来我会简单提一下<code>rabbitmq</code>的配置文件，以及如何处理上述的只能在本地进行登录的问题。</p>
+<h2 id="五、配置"><a href="#五、配置" class="headerlink" title="五、配置"></a>五、配置</h2><h3 id="1、安装的新版本，找不到配置文件？"><a href="#1、安装的新版本，找不到配置文件？" class="headerlink" title="1、安装的新版本，找不到配置文件？"></a>1、安装的新版本，找不到配置文件？</h3><p>安装成功后，在<code>/usr/share/doc/rabbitmq-server-x.x.x</code>（x.x.x表示版本号）目录下会有一个<code>rabbitmq.conf.example</code>的配置文件，但貌似新版本中移除了，只有旧版本中才有，至少<code>3.8.16</code>这个版本中是没有。</p>
+<p>可以使用<code>rpm -ql &lt;软件名&gt;</code>命令查看<code>rabbitmq</code>都安装了哪些文件来验证一下。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> rpm -ql rabbitmq-server</span></span><br></pre></td></tr></table></figure>
+
+<p>通过上述命令的结果，可以发现，<code>3.8.16</code>这个版本中确实是没有<code>rabbitmq.conf.example</code>这个文件，那还能咋办，官网查呗！（如果你安装的是旧版本，有这个文件，也请接着往下看）</p>
+<h3 id="2、官网的配置指导说明"><a href="#2、官网的配置指导说明" class="headerlink" title="2、官网的配置指导说明"></a>2、官网的配置指导说明</h3><p>我们可以到官网上查看<code>rabbitmq</code>的配置说明，这里给出<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#config-file">地址</a>，打开后如下图所示</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/7e3ddaac1da6c94a33816d0833410520.png" alt="image-20210512222837585"></p>
+<p>上图中红框导航部分翻译过来就是：</p>
+<ul>
+<li>配置服务器和插件的各种<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#means-of-configuration">不同设置方法</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#configuration-files">配置文件</a>：基本配置<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#config-file"><code>rabbitmq.conf</code></a> 以及 可选配置<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#advanced-config-file"><code>advanced.config</code></a></li>
+<li>各种平台上的默认<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#config-location">配置文件位置</a></li>
+<li>配置故障排除：如何<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#verify-configuration-config-file-location">查找配置文件位置</a>以及<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#verify-configuration-effective-configuration">检查和验证有效配置</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#customise-environment">环境变量</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#kernel-limits">操作系统（内核）限制</a></li>
+<li>可用的<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#config-items">核心服务器设置</a></li>
+<li>可用<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#supported-environment-variables">环境变量</a></li>
+<li>如何<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#configuration-encryption">加密敏感的配置值</a></li>
+</ul>
+<h3 id="3、允许guest用户从任意网络登录"><a href="#3、允许guest用户从任意网络登录" class="headerlink" title="3、允许guest用户从任意网络登录"></a>3、允许<code>guest</code>用户从任意网络登录</h3><p>回到配置说明中，点击第一点或往下滚动网页，查看<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/configure.html#means-of-configuration">配置方法</a>，截图如下：</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/c2eb387f3b6e9a095a43b0cd14a58ff5.png" alt="image-20210513133925628"></p>
+<p>截图中框出来的部分就是接下来要看的<code>认证、授权</code>，不然外网没法登录管理控制页面。点击链接进入相应页面，可以看到下面这么一段，明确说明了默认用户只能用于本地连接，远程连接会被拒绝，同时，最下面一行也说明了生产环境不应使用默认账户，而是应该创建一个新的账户来代替。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/cc5498f0bb5c8f3592206615f3735703.png" alt="image-20210513134332366"></p>
+<p>当然，非要使用<code>guest</code>用户访问也是可以的，见下图所示</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/23bdf060d4e7d91402bc1466b00ef944.png" alt="image-20210513134826862"></p>
+<p>先来测试一下，上面这个方法行不行。由于这个版本没有配置文件，所以我们需要手动创建一下。</p>
+<blockquote>
+<p>注意，文件名一定要是<code>rabbitmq.conf</code>，后缀一定要是<code>conf</code>，不能是<code>config</code>，<code>config</code>是高级配置使用的，二者的语法是不同的。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /etc/rabbitmq/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建并编辑配置文件</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> vim rabbitmq.conf</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 在文件中添加一行 loopback_users = none</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 保存，退出</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/68c1c80b061b0e099e5669dea61a582d.png" alt="image-20210513140635126"></p>
+<p>重启<code>rabbitmq</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> systemctl restart rabbitmq-server.service</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 没有报错，没有消息就是好消息。再查看状态，也是成功的</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> systemctl status rabbitmq-server.service</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来就可以在<code>win10</code>本地直接通过<code>guest</code>账号登录了。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/1586cdf3f7424478c1a433038b386eb9.png" alt="image-20210513141026263"></p>
+<p>除了上面这种方式外，还有其他方式来进行配置，回到官网配置信息页面，找到关于配置文件的描述，大致就是说源码库中包含了一个名叫<code>rabbitmq.conf.example</code>的文件，这个文件中包含了我们可能会使用到的绝大多数配置示例，对于比较晦涩的配置，则是被隐藏了。如下图</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/b62d5cef1b78a8450ddb917a875d930c.png" alt="image-20210513204359016"></p>
+<p>点击红框中的<a target="_blank" rel="noopener" href="https://github.com/rabbitmq/rabbitmq-server/blob/v3.8.x/deps/rabbit/docs/rabbitmq.conf.example">链接</a>即可跳到<code>github</code>中的配置文件示例页面，如下图所示</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/13b39deacb20f52b87fa42cc4a55b41e.png" alt="image-20210513204528573"></p>
+<p>接下来将这个文件下载下来（可以手动将里面的内容复制出来），上传到<code>/etc/rabbitmq/</code>中，命名就是<code>rabbitmq.conf</code>，也就是说，需要将之前的配置文件覆盖掉，打开新的配置文件，可以发现，里面的所有配置项前面都有井号<code>#</code>注释。在配置文件找到如下所示的配置</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/a63f38de5e03dcd5db18c377a43c0c76.png" alt="image-20210513205302178"></p>
+<p>光标上面的注释解释起来大概就是：如果你想允许<code>guest</code>用户从任意网络进行访问，那就取消下面那行的注释。我试了一下，将光标位置出的注释去掉，保存重启，发现也是能从本地使用<code>guest</code>用户进行登录访问的。</p>
+<p>介绍完了两种方法后，接下来按照官网推荐的方式新建用户来进行访问，先将上面配置文件中的去掉的注释还原回来，让<code>guest</code>还是只允许本地访问（同时建议<code>guest</code>的密码改了，或者直接删除掉<code>guest</code>用户）。</p>
+<h3 id="4、添加新用户"><a href="#4、添加新用户" class="headerlink" title="4、添加新用户"></a>4、添加新用户</h3><p>打开上面第3节中第一张截图中的链接，找到<a target="_blank" rel="noopener" href="https://www.rabbitmq.com/access-control.html#user-management">用户权限管理</a>，官网讲的很细，用户的增删改查都列出来了，如下图所示</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6ae35f4b8419fbeae347fb8e52d50db5.png" alt="image-20210513211010534"></p>
+<p>接下来按照官网的说明创建一个管理员用户<code>admin</code>，密码也是<code>admin</code>（密码不建议使用这个，我这里为了记起来方便这么取）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> rabbitmqctl add_user admin admin</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来给用户授权</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/071707450980b0f7832988e858f4349c.png" alt="image-20210513211733746"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 授予admin用户默认visual host “/”下的所有资源的配置、写、读权限$ rabbitmqctl set_permissions -p <span class="string">&quot;/&quot;</span> admin <span class="string">&quot;.*&quot;</span> <span class="string">&quot;.*&quot;</span> <span class="string">&quot;.*&quot;</span><span class="comment"># 授予admin用户administrator角色$ rabbitmqctl set_user_tags admin administrator</span></span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/dbd73880580a19b81238f4288915562a.png" alt="image-20210513212704056"></p>
+<p>上述操作也可以在可视化管理页面上进行操作</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/9db2e672e25fc6cdf71fa260dff3f30c.png" alt="image-20210513213539072"></p>
+<p>添加完成后，点击列表中用户名即可进入该用户的管理页面对该用户进行授权，通常是不同的用户授予不同的<code>visual host</code>权限，<code>visual host</code>可以在右侧的<code>Visual Hosts</code>中进行新增。</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/69811e70a8f81ece228fe201618fb983.png" alt="image-20210513214304440"></p>
+<p>到此为止，<code>rabbitmq</code>在<code>centos7</code>中的安装就基本上差不多了。如果有什么写错了的，请各位大佬进行指正。</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#rabbitmq" >
+    <span class="tag-code">rabbitmq</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/05/24/mysql%E4%BA%8B%E5%8A%A1/">
+        <span class="nav-arrow">← </span>
+        
+          mysql事务
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/05/24/nginx%E5%9C%A8centos7%E4%B8%8B%E7%9A%84%E5%AE%89%E8%A3%85/">
+        
+          nginx在centos7下的安装
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- No Comment -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%80%E3%80%81%E4%B8%8B%E8%BD%BDErlang"><span class="toc-nav-text">一、下载Erlang</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8B%E8%BD%BDrabbitmq-3-8-16"><span class="toc-nav-text">二、下载rabbitmq 3.8.16</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85"><span class="toc-nav-text">三、安装</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%9B%9B%E3%80%81%E5%BC%80%E5%90%AF%E5%9B%BE%E5%BD%A2%E5%8C%96%E7%AE%A1%E7%90%86%E7%95%8C%E9%9D%A2%E6%8F%92%E4%BB%B6"><span class="toc-nav-text">四、开启图形化管理界面插件</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%94%E3%80%81%E9%85%8D%E7%BD%AE"><span class="toc-nav-text">五、配置</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85%E7%9A%84%E6%96%B0%E7%89%88%E6%9C%AC%EF%BC%8C%E6%89%BE%E4%B8%8D%E5%88%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%9F"><span class="toc-nav-text">1、安装的新版本，找不到配置文件？</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2%E3%80%81%E5%AE%98%E7%BD%91%E7%9A%84%E9%85%8D%E7%BD%AE%E6%8C%87%E5%AF%BC%E8%AF%B4%E6%98%8E"><span class="toc-nav-text">2、官网的配置指导说明</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3%E3%80%81%E5%85%81%E8%AE%B8guest%E7%94%A8%E6%88%B7%E4%BB%8E%E4%BB%BB%E6%84%8F%E7%BD%91%E7%BB%9C%E7%99%BB%E5%BD%95"><span class="toc-nav-text">3、允许guest用户从任意网络登录</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4%E3%80%81%E6%B7%BB%E5%8A%A0%E6%96%B0%E7%94%A8%E6%88%B7"><span class="toc-nav-text">4、添加新用户</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://yang-guirong.github.io/2021/05/24/centos7下rabbitmq详细图文安装记录/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

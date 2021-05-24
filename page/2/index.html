@@ -72,7 +72,7 @@
       
         <li class="list-item">
           
-            <a href="/" class="item-link">Home</a>
+            <a href="/" class="item-link active">Home</a>
           
         </li>
       
@@ -105,7 +105,7 @@
         
           <li class="menu-item">
             
-              <a href="/" class="menu-link">Home</a>
+              <a href="/" class="menu-link mobile-active">Home</a>
             
           </li>
         
@@ -132,39 +132,44 @@
   </div>
 </header>
 
-    <div id="article-banner">
-    <h2>Categories</h2>
-    <p class="post-date">分类检索</p>
-</div>
+    <main class="app-body">
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/04/30/zookeeper%E5%AE%89%E8%A3%85/">zookeeper安装</a>
+      </h2>
+      <p class="article-date">2021年4月30日</p>
+      
+        
+  <a href="/tags#zookeeper" >
+    <span class="tag-code">zookeeper</span>
+  </a>
 
-<main class="app-body" id="category">
-    
-    
-    <div class="category-list">
-        <h3 class="category-name" id="category-mysql">mysql</h3>
+      
+      <div class="article-summary">
         
-            <ul class="category-preview">
-                <li>
-                    <a href="/2021/05/21/mysql索引/">mysql索引</a>
-                </li>
-            </ul>
+          <p>一、下载并安装zookeeper</p>
+<p>1、项目地址：<a target="_blank" rel="noopener" href="https://github.com/apache/zookeeper">https://github.com/apache/zookeeper</a></p>
+<p>从文档中可以找到下载地址为：<a target="_blank" rel="noopener" href="https://zookeeper.apache.org/releases.html">https://zookeeper.apache.org/releases.html</a></p>
+<p>如不需要最新版本，则可在该页面上找到各版本下载地址（字体颜色太浅，我一时没找到…）：<a target="_blank" rel="noopener" href="https://archive.apache.org/dist/zookeeper/">https://archive.apache.org/dist/zookeeper/</a></p>
         
-            <ul class="category-preview">
-                <li>
-                    <a href="/2021/05/24/mysql事务/">mysql事务</a>
-                </li>
-            </ul>
-        
-    </div>
+      </div>
+      <a class="more" href="/2021/04/30/zookeeper%E5%AE%89%E8%A3%85/">Read more</a>
+    </article>
+  
+
+  
+    <div class="guide-pager">
+  
+    <a href="/"><span class="page-arrow">← </span>Prev</a>
+  
+  
+    <a class="unvisible" href="/">Next <span class="page-arrow">→</span></a>
+  
+</div>
+  
 </main>
 
-<script>
-    (function () {
-        var url = 'http://yang-guirong.github.io/categories/mysql/index.html';
-        $('#article-banner').geopattern(url);
-        $('.header').removeClass('fixed-header');
-    })();
-</script>
 
     <div class="scroll-top">
   <span class="arrow-icon"></span>

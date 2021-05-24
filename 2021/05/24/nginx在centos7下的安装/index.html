@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="个人技术知识沉淀">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      nginx在centos7下的安装 | YGR BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>YGR BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>nginx在centos7下的安装</h2>
+  <p class="post-date">2021-05-24</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>nginx在centos7下的安装，所有配置均默认。</p>
+<span id="more"></span>
+
+
+
+<h2 id="1、下载"><a href="#1、下载" class="headerlink" title="1、下载"></a>1、下载</h2><p>使用的环境为64位centos7.5，<code>nginx</code><a target="_blank" rel="noopener" href="http://nginx.org/en/download.html">官网下载地址</a>，使用的最新稳定版<code>1.20.0</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入需要安装的目录</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /opt/software/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 下载</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> wget http://nginx.org/download/nginx-1.20.0.tar.gz</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tar -zxvf nginx-1.20.0.tar.gz</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2、安装"><a href="#2、安装" class="headerlink" title="2、安装"></a>2、安装</h2><p>解压后进入源码包，在源码包内可以看到有可执行文件<code>configure</code>。</p>
+<p>其中<code>configure</code>主要是<code>nginx</code>进行一些编译安装前的配置，如是否需要配置ssl、pcre、zip等模块的信息，是否需要开启或者禁用某些功能等，通过<code>configure</code>执行文件会生成<code>Makefile</code>的配置文件信息，该文件是<code>make</code>和<code>make install</code>的参考。支持的配置如下</p>
+<ul>
+<li><p><code>–prefix=path</code></p>
+<p>该配置主要配置编译之后的文件存放的地方，<code>nginx.conf</code>中的部分路径会参考该路径（不包含一些库的路径），默认使用的是<code>/usr/local/nginx</code>，推荐使用默认的，即不要设置该选项，推荐使用默认。</p>
+</li>
+<li><p><code>–sbin-path=path</code><br>设置编译之后的<code>nginx</code>可执行文件的路径，默认使用<code>prefix/sbin/nginx</code>，推荐使用默认。</p>
+</li>
+<li><p><code>–conf-path=path</code><br>设置编译之后的<code>conf</code>文件的路径，默认是用<code>prefix/conf/nginx.conf</code>，推荐使用默认。</p>
+</li>
+<li><p><code>–pid-path=path</code><br>当<code>nginx</code>启动之后，会生成一个<code>nginx.pid</code>的文件，该选项配置<code>nginx.pid</code>文件存放的目录，默认是存放在<code>prefix/logs/nginx.pid</code>，不推荐使用默认路径，因为logs主要用于存放日志文件，这种情况下容易误删除，建议存放在<code>prefix/nginx.pid</code>目录下。</p>
+</li>
+<li><p><code>–error-log-path=path</code><br>配置错误日志文件的路径，默认路径是prefix/logs/error.log，在配置之后可以在<code>nginx.conf</code>中更改，所以在执行configure的时候可以忽略该选项。</p>
+</li>
+<li><p><code>–http-log-path=path</code><br>配置服务器访问日志路径，通error日志配置，后期可以在<code>nginx.conf</code>中修改，在执行<code>configure</code>的时候可以忽略该选项。</p>
+</li>
+<li><p><code>–build=name</code><br>设置<code>nginx</code>的编译的名字，建议忽略该选项</p>
+</li>
+<li><p><code>–user=name</code><br>设置<code>worker</code>线程的<code>linux</code>用户信息，可以控制<code>worker</code>线程的权限，推荐使用默认。</p>
+</li>
+<li><p><code>–group=name</code><br>同上，设置worker线程的<code>linux</code>用户分组，可以控制worker线程的权限，推荐使用默认。</p>
+</li>
+<li><p><code>–with-select_module</code><br>配置服务器的是否使用<code>select</code>轮询接口（该接口低效且有限制），在编译过程中默认首先使用高效的<code>epoll</code>、<code>poll</code>等机制，所以推荐默认。</p>
+</li>
+<li><p><code>–with-poll_module</code><br><code>–without-poll_module</code><br>同上，poll接口比select接口更加高效，但是同样有一定的socket数量的限制，推荐使用默认。</p>
+</li>
+<li><p><code>–without-http_gzip_module</code><br>是否禁止允许服务器使用zip压缩传输数据，建议使用默认值。</p>
+</li>
+<li><p><code>–without-http_rewrite_module</code><br>是否需要禁止<code>url</code>重写，如果需要<code>url</code>重写，忽略该选项。</p>
+</li>
+<li><p><code>–without-http_proxy_module</code><br>是否需要禁止代理模块，如果需要代理，忽略该选项。</p>
+</li>
+<li><p><code>–with-http_ssl_module</code><br>是否需要支持<code>ssl</code>，如果不需要，忽略该选项。</p>
+</li>
+<li><p><code>–with-pcre=path</code><br>配置<code>pcre</code>库的源文件的路径，如果需要<code>url</code>重写或者是<code>location</code>正则匹配，那么需要配置该选项。</p>
+</li>
+<li><p><code>–with-pcre-jit</code><br>建议不配置该选项，视具体需求而定。</p>
+</li>
+<li><p><code>–with-zlib=path</code><br>配置<code>zlib</code>压缩库源文件的路径，如果需要数据传输压缩，那么需要配置该选项。</p>
+</li>
+<li><p><code>–with-cc-opt=parameters</code><br>该配置是用于扩展<code>gcc</code>编译配置，根据操作系统不同需要进行配置。</p>
+</li>
+<li><p><code>–with-ld-opt=parameters</code><br>如果在FreeBSD操作系统下面配置PCRE，那么需要配置该选项，参考英文描述。</p>
+</li>
+</ul>
+<p>上述配置信息来自博主m47838704的<a target="_blank" rel="noopener" href="https://blog.csdn.net/m47838704/article/details/80101481">博客</a>，去除了英文描述。</p>
+<p>这里需要安装如下四个模块（安装前若未设置过<code>yum</code>源，则可以先设置为阿里或清华的，<a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaojin21cen/article/details/84726193">参考</a>），安装说明<a target="_blank" rel="noopener" href="https://nishigouzi.github.io/2020/06/07/Nginx%E7%AC%94%E8%AE%B0/#more">参考</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> gcc 安装 nginx 需要先将官网下载的源码进行编译，编译依赖 gcc 环境，如果没有 gcc 环境，则需要安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> yum install gcc-c++</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> pcre PCRE(Perl Compatible Regular Expressions) 是一个Perl库，包括 perl 兼容的正则表达式库。nginx 的 http 模块使用 pcre 来解析正则表达式，所以需要在 linux 上安装 pcre 库，pcre-devel 是使用 pcre 开发的一个二次开发库。nginx也需要此库</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> yum install -y pcre pcre-devel</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> zlib 库提供了很多种压缩和解压缩的方式， nginx 使用 zlib 对 http 包的内容进行 gzip ，所以需要在 Centos 上安装 zlib 库</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> yum install -y zlib zlib-devel</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> OpenSSL 是一个强大的安全套接字层密码库，囊括主要的密码算法、常用的密钥和证书封装管理功能及 SSL 协议，并提供丰富的应用程序供测试或其它目的使用。nginx 不仅支持 http 协议，还支持 https（即在ssl协议上传输http），所以需要在 Centos 安装 OpenSSL 库</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> yum install -y openssl openssl-devel</span></span><br></pre></td></tr></table></figure>
+
+<p>所有配置默认，在<code>/opt/software/nginx-1.20.0</code>目录下执行如下命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./configure</span></span><br></pre></td></tr></table></figure>
+
+<p>执行完上述命令后，目录下出现了<code>Makefile</code>文件，接着执行编译安装即可</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure>
+
+<p>默认会安装到<code>/usr/local/nginx/</code>目录下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /usr/<span class="built_in">local</span>/nginx/sbin</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看版本</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./nginx -v</span></span><br></pre></td></tr></table></figure>
+
+<p>启动，停止nginx</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> /usr/<span class="built_in">local</span>/nginx/sbin/</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./nginx</span> </span><br><span class="line"><span class="meta">$</span><span class="bash"> ./nginx -s stop</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./nginx -s quit</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置文件后，reload</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./nginx -s reload</span></span><br></pre></td></tr></table></figure>
+
+<p>查询nginx进程：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ps aux|grep nginx</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m47838704/article/details/80101481">nginx——安装和配置详解</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1zJ411w7SV">bilibili：尚硅谷Nginx教程由浅入深（一套打通丨初学者也可掌握）</a></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#nginx" >
+    <span class="tag-code">nginx</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/05/24/centos7%E4%B8%8Brabbitmq%E8%AF%A6%E7%BB%86%E5%9B%BE%E6%96%87%E5%AE%89%E8%A3%85%E8%AE%B0%E5%BD%95/">
+        <span class="nav-arrow">← </span>
+        
+          centos7下rabbitmq详细图文安装记录
+        
+      </a>
+    
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- No Comment -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#1%E3%80%81%E4%B8%8B%E8%BD%BD"><span class="toc-nav-text">1、下载</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85"><span class="toc-nav-text">2、安装</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://yang-guirong.github.io/2021/05/24/nginx在centos7下的安装/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

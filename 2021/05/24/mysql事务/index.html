@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="个人技术知识沉淀">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      mysql事务 | YGR BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>YGR BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>mysql事务</h2>
+  <p class="post-date">2021-05-24</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>本文主要参考于B站视频，记录了事务和锁机制，解释了并发事务带来的问题（脏读、幻读、不可重复读），以及面对这些问题，MySQL InnoDB又是如何处理的。主要讲述的是事务与锁，<code>MVCC</code>将计划下篇文章中再进行记录。</p>
+<span id="more"></span>
+
+
+<h2 id="一、事务的定义"><a href="#一、事务的定义" class="headerlink" title="一、事务的定义"></a>一、事务的定义</h2><p>事务是数据库管理系统（DBMS）执行过程中的一个逻辑单位，由一个有限的数据库操作序列构成。</p>
+<h2 id="二、事务四大特性（ACID）"><a href="#二、事务四大特性（ACID）" class="headerlink" title="二、事务四大特性（ACID）"></a>二、事务四大特性（ACID）</h2><ul>
+<li>原子性（Atomicity）</li>
+<li>一致性（Consistency）</li>
+<li>隔离性（Isolation）</li>
+<li>持久性（Durability）</li>
+</ul>
+<h2 id="三、并发事务问题"><a href="#三、并发事务问题" class="headerlink" title="三、并发事务问题"></a>三、并发事务问题</h2><h3 id="1、脏读（Dirty-Read）"><a href="#1、脏读（Dirty-Read）" class="headerlink" title="1、脏读（Dirty Read）"></a>1、脏读（Dirty Read）</h3><p>简单讲，就是事务A查询到了事务B<strong>修改后未提交</strong>的数据，若事务B回滚了，则事务A之前读到的数据就变成了脏数据。</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210523200347.png" alt="image-20210523200345280"></p>
+<h3 id="2、幻读（Phontom）"><a href="#2、幻读（Phontom）" class="headerlink" title="2、幻读（Phontom）"></a>2、幻读（Phontom）</h3><p>简单讲，就是事务A对表中某个条件下数据进行修改，读取到10条数据，在修改前，事务B也对这个表中数据进行了修改，如<strong>插入或删除</strong>了某条数据，导致事务A再次用相同条件查询时，得到的数据不是10条，像是发生了幻觉一样。</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210523223650.png" alt="image-20210523223648154"></p>
+<h3 id="3、不可重复读（Non-repeatable-Read）"><a href="#3、不可重复读（Non-repeatable-Read）" class="headerlink" title="3、不可重复读（Non-repeatable Read）"></a>3、不可重复读（Non-repeatable Read）</h3><p>简单讲，就是事务A查询到了事务B<strong>修改提交后</strong>的数据，导致与事务A前后查询结果不一致的情况。</p>
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210523200707.png" alt="image-20210523200704540"></p>
+<blockquote>
+<p>并发事务的三大问题其实都是数据库<strong>读一致性</strong>问题，必须由数据库提供一定的事务隔离机制来解决。</p>
+</blockquote>
+<h2 id="四、事务的四种隔离标准（SQL92-ANSI-ISO标准）"><a href="#四、事务的四种隔离标准（SQL92-ANSI-ISO标准）" class="headerlink" title="四、事务的四种隔离标准（SQL92 ANSI/ISO标准）"></a>四、事务的四种隔离标准（SQL92 ANSI/ISO标准）</h2><h3 id="1、未提交读（Read-Uncommitted）"><a href="#1、未提交读（Read-Uncommitted）" class="headerlink" title="1、未提交读（Read Uncommitted）"></a>1、未提交读（Read Uncommitted）</h3><p>最低级的事务级别，可以读取到其他事务未提交的数据。未解决任何并发事务问题。</p>
+<h3 id="2、已提交读（Read-Committed）"><a href="#2、已提交读（Read-Committed）" class="headerlink" title="2、已提交读（Read Committed）"></a>2、已提交读（Read Committed）</h3><p>只能读取已提交事务数据，不能读取未提交事务数据，解决了脏读</p>
+<h3 id="3、可重复度（Repeatable-Read）"><a href="#3、可重复度（Repeatable-Read）" class="headerlink" title="3、可重复度（Repeatable Read）"></a>3、可重复度（Repeatable Read）</h3><p>解决脏读、不可重复读，是mysql默认的事务隔离级别。</p>
+<h3 id="4、串行化（Serializable）"><a href="#4、串行化（Serializable）" class="headerlink" title="4、串行化（Serializable）"></a>4、串行化（Serializable）</h3><p>所有事务串行化执行，解决事务并发的所有问题（直接不存在并发了）</p>
+<h2 id="五、mysql-IndoDB对事务隔离级别的支持程度"><a href="#五、mysql-IndoDB对事务隔离级别的支持程度" class="headerlink" title="五、mysql IndoDB对事务隔离级别的支持程度"></a>五、mysql IndoDB对事务隔离级别的支持程度</h2><p>mysql InnoDB对事务的隔离级别默认是可重复读。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span><span class="bash"> show global variables like <span class="string">&#x27;tx_isolation&#x27;</span>;</span></span><br><span class="line">+---------------+-----------------+</span><br><span class="line">| Variable_name | Value           |</span><br><span class="line">+---------------+-----------------+</span><br><span class="line">| tx_isolation  | REPEATABLE-READ |</span><br><span class="line">+---------------+-----------------+</span><br><span class="line">1 row in set (0.04 sec)</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210523225521.png" alt="image-20210523225517432"></p>
+<blockquote>
+<p>mysql InnoDB完全解决了幻读，但它是如何解决的？请接着往后看。</p>
+</blockquote>
+<p>mysql手动开启事务</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">START</span> TRANSACTION;		<span class="comment">-- 开启事务</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `t1` (t, t1) <span class="keyword">VALUES</span>(<span class="string">&#x27;124&#x27;</span>, NOW()); <span class="comment">-- do something</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ROLLBACK</span>;			   <span class="comment">-- 事务回滚</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COMMIT</span>;				   <span class="comment">-- 事务提交</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="六、事务隔离级别的解决方案"><a href="#六、事务隔离级别的解决方案" class="headerlink" title="六、事务隔离级别的解决方案"></a>六、事务隔离级别的解决方案</h2><h3 id="1、LBCC—基于锁的并发控制"><a href="#1、LBCC—基于锁的并发控制" class="headerlink" title="1、LBCC—基于锁的并发控制"></a>1、LBCC—基于锁的并发控制</h3><p>在读取数据前，对其加锁，阻止其他事务对数据进行修改：Lock Based Concurrency Control</p>
+<p>会降低并发量</p>
+<h3 id="2、MVCC—多版本并发控制"><a href="#2、MVCC—多版本并发控制" class="headerlink" title="2、MVCC—多版本并发控制"></a>2、MVCC—多版本并发控制</h3><p>生成一个数据请求时间点的一致性数据快照，并用这个快照来提供一定级别（语句级或事务级）的一致性读取：Multi Version Concurrency Control</p>
+<h2 id="七、锁分类"><a href="#七、锁分类" class="headerlink" title="七、锁分类"></a>七、锁分类</h2><p>锁的作用：解决资源的竞争问题。</p>
+<h3 id="1、行锁—共享锁（Shared-Locks）"><a href="#1、行锁—共享锁（Shared-Locks）" class="headerlink" title="1、行锁—共享锁（Shared Locks）"></a>1、行锁—共享锁（Shared Locks）</h3><p>S锁，又称为读锁，即多个事务对于同一数据可以共享一把锁，都能访问到数据，但是只能读不能改（其他事务无法对加了共享锁的数据进行修改）。</p>
+<p>加锁方式：<code>select * from user where id=1 LOCK IN SHARE MODE</code></p>
+<p>释放锁：<code>commit</code>、<code>rollback</code></p>
+<h3 id="2、行锁—排他锁（Exclusive-Locks）"><a href="#2、行锁—排他锁（Exclusive-Locks）" class="headerlink" title="2、行锁—排他锁（Exclusive Locks）"></a>2、行锁—排他锁（Exclusive Locks）</h3><p>X锁，又称为写锁，排他锁不能与其他锁并存，如一个事务获取了一个数据行的排他锁，其他事务就不能再获取该行的锁（共享锁、排他锁），只有该获取了排他锁的事务才可以对数据进行读取和修改。</p>
+<p>自动加锁：<code>delete</code>、<code>update</code>、<code>insert</code>，默认会自动加锁</p>
+<p>手动加锁：<code>select * from user where id=1 FOR UPDATE</code></p>
+<h3 id="3、表锁—意向共享锁（IS）与意向排他锁（IX）"><a href="#3、表锁—意向共享锁（IS）与意向排他锁（IX）" class="headerlink" title="3、表锁—意向共享锁（IS）与意向排他锁（IX）"></a>3、表锁—意向共享锁（IS）与意向排他锁（IX）</h3><p>加表锁成功的前提：没有任何事务已经锁定了这张表的任意一行数据，加锁时会进行全表扫描检测。</p>
+<blockquote>
+<p>意向锁是由数据引擎自己维护的，用户无法手动操作意向锁。</p>
+</blockquote>
+<p>意向共享锁（Intention Shared Locks，简称IS锁），表示事务准备给数据行加入共享锁，也就是说一个数据行加共享锁前必须先取得该表的IS锁。</p>
+<p>意向排他锁（Intention Exclusive Locks，简称IX锁），表示事务准备给数据行加入排他锁，说明事务在一个数据行加排他锁前必须先取得该表的IX锁。</p>
+<blockquote>
+<p>思考：为什么需要（表级别的）意向锁？</p>
+<p>答案：提高加表锁的效率，因为在加表锁之前，如果没有意向锁，则需要扫描全表的每一行数据判断能不能加表锁成功，而有了意向锁，则只需要看这个表上有没有意向锁，即可知道能不能加锁成功。</p>
+</blockquote>
+<h2 id="八、锁的本质"><a href="#八、锁的本质" class="headerlink" title="八、锁的本质"></a>八、锁的本质</h2><blockquote>
+<p>思考：加锁后锁住的是什么？是整张表吗？还是一行数据吗？又或是对应字段？</p>
+<p>答案：<strong>如果是行锁，则锁住的是记录对应的索引项，InnoDB行锁就是通过给索引上的索引项加锁来实现的，而如果未走索引或索引失效，则会从行锁升级为表锁。</strong></p>
+</blockquote>
+<p>案例一：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">start</span> transaction;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id<span class="operator">=</span><span class="number">1</span> <span class="keyword">for</span> update;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+<p>如上面的sql语句，如果id字段有索引，则查询会走索引，上面的语句锁住的是id=1的那条数据的索引项；如果id字段没有索引，则上面的语句会锁住整个表。</p>
+<p>案例二：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">user</span> <span class="keyword">add</span> index idx_nae(name,age,email); <span class="comment">-- 加索引</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">start</span> transaction;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> age<span class="operator">=</span><span class="number">16</span> <span class="keyword">for</span> update;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+<p>如上面的语句，age在组合索引中，但上面的语句不会走索引（最左匹配原则），所以上面的语句最终会锁的是整张表。</p>
+<p>案例三：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">user</span> <span class="keyword">add</span> index idx_nae(name,age,email); <span class="comment">-- 加索引</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">start</span> transaction;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> name<span class="operator">=</span><span class="string">&#x27;Jack&#x27;</span> <span class="keyword">for</span> update;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+<p>假设user表中有id=1，name=’Jack’的记录，则上面的语句执行后，最终锁住的是主键索引中id=1的索引项，因为这里的辅助索引在查询时会涉及到<strong>回表</strong>。</p>
+<h2 id="九、死锁"><a href="#九、死锁" class="headerlink" title="九、死锁"></a>九、死锁</h2><p>本节参考自<a target="_blank" rel="noopener" href="https://blog.csdn.net/eternal_yangyun/article/details/101037977?ops_request_misc=&request_id=&biz_id=102&utm_term=mysql%E8%A1%8C%E9%94%81%E4%B8%8E%E8%A1%A8%E9%94%81%E7%9A%84%E5%8C%BA%E5%88%AB&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-9-.pc_search_result_before_js&spm=1018.2226.3001.4187">Eternal_yys的博客</a>，以下面的图来举例，当处理完事务B的最后一行update，回车会出现下面的报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR 1213 (40001): Deadlock found when trying to get lock; try restarting transaction</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://ygr-bucket.oss-cn-beijing.aliyuncs.com/picture/20210524163401.png" alt="image-20210524163358965"></p>
+<h3 id="1、如何处理死锁"><a href="#1、如何处理死锁" class="headerlink" title="1、如何处理死锁"></a>1、如何处理死锁</h3><p>（1）<strong>直接进入等待，直到超时</strong>，InnoDB默认超时时间为50秒</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询超时时间</span></span><br><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;innodb_lock_wait_timeout&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 设置超时时间</span></span><br><span class="line"><span class="keyword">set</span> innodb_lock_wait_timeout <span class="operator">=</span> <span class="number">50</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>（2）<strong>发起死锁检测</strong>，发现死锁后，主动回滚死锁链条中的某一个事务，让其他事务得以执行。InnoDB默认开启死锁检测。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查询死锁检测开关状态</span></span><br><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;innodb_deadlock_detect&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 开启</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">global</span> innodb_deadlock_detect <span class="operator">=</span> <span class="keyword">on</span>;</span><br></pre></td></tr></table></figure>
+
+<p>死锁检测的条件：当前事务需要加锁访问的行被其他事务锁住时，才会进行死锁检测。</p>
+<h2 id="十、InnoDB是如何解决幻读的"><a href="#十、InnoDB是如何解决幻读的" class="headerlink" title="十、InnoDB是如何解决幻读的"></a>十、InnoDB是如何解决幻读的</h2><h3 id="间隙锁（Gap-Lock）"><a href="#间隙锁（Gap-Lock）" class="headerlink" title="间隙锁（Gap Lock）"></a>间隙锁（Gap Lock）</h3><blockquote>
+<p>锁定的是一个范围内（区间）的索引项，在这个被锁定的范围内，无法新增数据，也无法对已有数据进行更新或删除操作。</p>
+</blockquote>
+<p>假设有个user表，表字段id为自增主键，现有10条数据，id从1到10。</p>
+<p>事务A</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">start</span> transaction;<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">&gt;</span> <span class="number">5</span> <span class="keyword">for</span> update; <span class="comment">-- 会将id范围为6到无穷大的锁住-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+<p>事务B</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">start</span> transaction;<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">6</span> <span class="keyword">for</span> update; <span class="comment">-- 会被阻塞，如果不回滚或不关闭会话，则会阻塞直到超时（默认50秒）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">11</span> <span class="keyword">for</span> update; <span class="comment">-- 不会阻塞，因为没有id=11的数据</span></span><br><span class="line"></span><br><span class="line">update <span class="keyword">user</span> <span class="keyword">set</span> name <span class="operator">=</span> <span class="string">&#x27;Jack&#x27;</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">6</span>; <span class="comment">-- 会被阻塞</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">6</span>; <span class="comment">-- 会被阻塞</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">user</span>(id,name) <span class="keyword">values</span>(<span class="number">11</span>,<span class="string">&#x27;Mary&#x27;</span>); <span class="comment">-- 会被阻塞</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">6</span>; <span class="comment">-- 不会阻塞，可以正常查询-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+<p>如上，被事务A锁住的数据（6~10），另一个事务无法获取对应的锁，无法对锁住的数据进行更新、删除操作，也无法将数据插入到这个范围内。</p>
+<p>需要注意的是，如果将事务A中锁的条件范围修改为 <code>id &gt; 20</code>，最终生效的还是 <code>id &gt; 10</code></p>
+<p>事务A</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">start</span> transaction;<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">&gt;</span> <span class="number">20</span> <span class="keyword">for</span> update; <span class="comment">-- 由于当前表中id最大为10，所以这个锁锁住的数据范围是11到正无穷</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+<p>事务B</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">start</span> transaction;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">10</span> <span class="keyword">for</span> update; <span class="comment">-- 不会阻塞</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">11</span> <span class="keyword">for</span> update; <span class="comment">-- 不会阻塞，因为没有id=11的数据</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">user</span>(id,name) <span class="keyword">values</span>(<span class="number">11</span>,<span class="string">&#x27;Mary&#x27;</span>); <span class="comment">-- 会被阻塞，因为事务A的锁从11开始</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="临键锁（Next-key-Lock）"><a href="#临键锁（Next-key-Lock）" class="headerlink" title="临键锁（Next-key Lock）"></a>临键锁（Next-key Lock）</h3><blockquote>
+<p>锁定的也是一个范围，但它的范围与间隙锁略有不同，它锁定的是<strong>最后一个索引记录的下一个左开右闭区间</strong>。</p>
+</blockquote>
+<p>还是使用上面的user表为例，在上面id从1到10的基础上，新增一条id为20的记录，即总的有11条数据，分别是id从1到10的10条，外加一条id为20的数据。</p>
+<p>事务A</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">start</span> transaction;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">&gt;</span> <span class="number">13</span> <span class="keyword">and</span> id <span class="operator">&lt;</span> <span class="number">18</span> <span class="keyword">for</span> update; <span class="comment">-- 会锁住范围 (10,20]，不包含10，但包含20</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+<p>事务B</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">start</span> transaction;<span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">10</span> <span class="keyword">for</span> update; <span class="comment">-- 不会阻塞</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">11</span> <span class="keyword">for</span> update; <span class="comment">-- 不会阻塞，因为没有id=11的数据</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">user</span>(id,name) <span class="keyword">values</span>(<span class="number">11</span>,<span class="string">&#x27;Mary&#x27;</span>); <span class="comment">-- 会被阻塞，锁的范围 (10,20]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">20</span> <span class="keyword">for</span> update; <span class="comment">-- 会被阻塞，左开右闭包含20 </span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- rollback;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/eternal_yangyun/article/details/101037977?ops_request_misc=&request_id=&biz_id=102&utm_term=mysql%E8%A1%8C%E9%94%81%E4%B8%8E%E8%A1%A8%E9%94%81%E7%9A%84%E5%8C%BA%E5%88%AB&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-9-.pc_search_result_before_js&spm=1018.2226.3001.4187">细谈数据库表锁和行锁</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1x54y1979n?t=5451">bilibili：MySQL事务和锁机制详解</a></p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#mysql" >
+    <span class="tag-code">mysql</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/05/21/%E7%AE%97%E6%B3%95-%E6%A0%91/">
+        <span class="nav-arrow">← </span>
+        
+          算法-树
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/05/24/centos7%E4%B8%8Brabbitmq%E8%AF%A6%E7%BB%86%E5%9B%BE%E6%96%87%E5%AE%89%E8%A3%85%E8%AE%B0%E5%BD%95/">
+        
+          centos7下rabbitmq详细图文安装记录
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- No Comment -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%80%E3%80%81%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="toc-nav-text">一、事务的定义</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%8C%E3%80%81%E4%BA%8B%E5%8A%A1%E5%9B%9B%E5%A4%A7%E7%89%B9%E6%80%A7%EF%BC%88ACID%EF%BC%89"><span class="toc-nav-text">二、事务四大特性（ACID）</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%89%E3%80%81%E5%B9%B6%E5%8F%91%E4%BA%8B%E5%8A%A1%E9%97%AE%E9%A2%98"><span class="toc-nav-text">三、并发事务问题</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1%E3%80%81%E8%84%8F%E8%AF%BB%EF%BC%88Dirty-Read%EF%BC%89"><span class="toc-nav-text">1、脏读（Dirty Read）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2%E3%80%81%E5%B9%BB%E8%AF%BB%EF%BC%88Phontom%EF%BC%89"><span class="toc-nav-text">2、幻读（Phontom）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3%E3%80%81%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%EF%BC%88Non-repeatable-Read%EF%BC%89"><span class="toc-nav-text">3、不可重复读（Non-repeatable Read）</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%9B%9B%E3%80%81%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%9B%9B%E7%A7%8D%E9%9A%94%E7%A6%BB%E6%A0%87%E5%87%86%EF%BC%88SQL92-ANSI-ISO%E6%A0%87%E5%87%86%EF%BC%89"><span class="toc-nav-text">四、事务的四种隔离标准（SQL92 ANSI&#x2F;ISO标准）</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1%E3%80%81%E6%9C%AA%E6%8F%90%E4%BA%A4%E8%AF%BB%EF%BC%88Read-Uncommitted%EF%BC%89"><span class="toc-nav-text">1、未提交读（Read Uncommitted）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2%E3%80%81%E5%B7%B2%E6%8F%90%E4%BA%A4%E8%AF%BB%EF%BC%88Read-Committed%EF%BC%89"><span class="toc-nav-text">2、已提交读（Read Committed）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3%E3%80%81%E5%8F%AF%E9%87%8D%E5%A4%8D%E5%BA%A6%EF%BC%88Repeatable-Read%EF%BC%89"><span class="toc-nav-text">3、可重复度（Repeatable Read）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4%E3%80%81%E4%B8%B2%E8%A1%8C%E5%8C%96%EF%BC%88Serializable%EF%BC%89"><span class="toc-nav-text">4、串行化（Serializable）</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%BA%94%E3%80%81mysql-IndoDB%E5%AF%B9%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E7%9A%84%E6%94%AF%E6%8C%81%E7%A8%8B%E5%BA%A6"><span class="toc-nav-text">五、mysql IndoDB对事务隔离级别的支持程度</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%85%AD%E3%80%81%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-nav-text">六、事务隔离级别的解决方案</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1%E3%80%81LBCC%E2%80%94%E5%9F%BA%E4%BA%8E%E9%94%81%E7%9A%84%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="toc-nav-text">1、LBCC—基于锁的并发控制</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2%E3%80%81MVCC%E2%80%94%E5%A4%9A%E7%89%88%E6%9C%AC%E5%B9%B6%E5%8F%91%E6%8E%A7%E5%88%B6"><span class="toc-nav-text">2、MVCC—多版本并发控制</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B8%83%E3%80%81%E9%94%81%E5%88%86%E7%B1%BB"><span class="toc-nav-text">七、锁分类</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1%E3%80%81%E8%A1%8C%E9%94%81%E2%80%94%E5%85%B1%E4%BA%AB%E9%94%81%EF%BC%88Shared-Locks%EF%BC%89"><span class="toc-nav-text">1、行锁—共享锁（Shared Locks）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2%E3%80%81%E8%A1%8C%E9%94%81%E2%80%94%E6%8E%92%E4%BB%96%E9%94%81%EF%BC%88Exclusive-Locks%EF%BC%89"><span class="toc-nav-text">2、行锁—排他锁（Exclusive Locks）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3%E3%80%81%E8%A1%A8%E9%94%81%E2%80%94%E6%84%8F%E5%90%91%E5%85%B1%E4%BA%AB%E9%94%81%EF%BC%88IS%EF%BC%89%E4%B8%8E%E6%84%8F%E5%90%91%E6%8E%92%E4%BB%96%E9%94%81%EF%BC%88IX%EF%BC%89"><span class="toc-nav-text">3、表锁—意向共享锁（IS）与意向排他锁（IX）</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%85%AB%E3%80%81%E9%94%81%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="toc-nav-text">八、锁的本质</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E4%B9%9D%E3%80%81%E6%AD%BB%E9%94%81"><span class="toc-nav-text">九、死锁</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1%E3%80%81%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E6%AD%BB%E9%94%81"><span class="toc-nav-text">1、如何处理死锁</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8D%81%E3%80%81InnoDB%E6%98%AF%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E5%B9%BB%E8%AF%BB%E7%9A%84"><span class="toc-nav-text">十、InnoDB是如何解决幻读的</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%97%B4%E9%9A%99%E9%94%81%EF%BC%88Gap-Lock%EF%BC%89"><span class="toc-nav-text">间隙锁（Gap Lock）</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%B8%B4%E9%94%AE%E9%94%81%EF%BC%88Next-key-Lock%EF%BC%89"><span class="toc-nav-text">临键锁（Next-key Lock）</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://yang-guirong.github.io/2021/05/24/mysql事务/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>
