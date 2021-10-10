@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="个人技术知识沉淀">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      常用的JavaScript方法 | YGR BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>YGR BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>常用的JavaScript方法</h2>
+  <p class="post-date">2021-10-10</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>记录下常用的JavaScript方法。</p>
+<span id="more"></span>
+
+
+
+<h3 id="1、时间格式化"><a href="#1、时间格式化" class="headerlink" title="1、时间格式化"></a>1、时间格式化</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 时间格式化</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param </span>fmt 格式:例如 yyyy-MM-dd HH:mm:ss</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param </span>date 时间</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return <span class="type">&#123;*&#125;</span> </span>返回格式后的时间字符串 如 2020-03-29 18:34:09</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">dateFormat</span>(<span class="params">fmt, date</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> ret;</span><br><span class="line">  <span class="keyword">const</span> opt = &#123;</span><br><span class="line">    <span class="string">&quot;y+&quot;</span>: date.getFullYear().toString(), <span class="comment">// 年</span></span><br><span class="line">    <span class="string">&quot;M+&quot;</span>: (date.getMonth() + <span class="number">1</span>).toString(), <span class="comment">// 月</span></span><br><span class="line">    <span class="string">&quot;d+&quot;</span>: date.getDate().toString(), <span class="comment">// 日</span></span><br><span class="line">    <span class="string">&quot;H+&quot;</span>: date.getHours().toString(), <span class="comment">// 时</span></span><br><span class="line">    <span class="string">&quot;m+&quot;</span>: date.getMinutes().toString(), <span class="comment">// 分</span></span><br><span class="line">    <span class="string">&quot;s+&quot;</span>: date.getSeconds().toString() <span class="comment">// 秒</span></span><br><span class="line">    <span class="comment">// 有其他格式化字符需求可以继续添加，必须转化成字符串</span></span><br><span class="line">  &#125;;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> k <span class="keyword">in</span> opt) &#123;</span><br><span class="line">    ret = <span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">&quot;(&quot;</span> + k + <span class="string">&quot;)&quot;</span>).exec(fmt);</span><br><span class="line">    <span class="keyword">if</span> (ret) &#123;</span><br><span class="line">      fmt = fmt.replace(ret[<span class="number">1</span>], (ret[<span class="number">1</span>].length === <span class="number">1</span>) ? (opt[k]) : (opt[k].padStart(ret[<span class="number">1</span>].length, <span class="string">&quot;0&quot;</span>)))</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> fmt;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> let date = new Date();</span></span><br><span class="line"><span class="comment"> dateFormat(&quot;yyyy/MM/dd HH/mm/ss&quot;, date);</span></span><br><span class="line"><span class="comment"> dateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;, date);</span></span><br><span class="line"><span class="comment"> dateFormat(&quot;HHmmss&quot;, date);</span></span><br><span class="line"><span class="comment"> dateFormat(&quot;yyyyMMdd&quot;, date);</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2、判断是否是数字类型"><a href="#2、判断是否是数字类型" class="headerlink" title="2、判断是否是数字类型"></a>2、判断是否是数字类型</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 判断是否是数字</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param <span class="variable">val</span></span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@returns <span class="type">&#123;boolean&#125;</span></span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isRealNumber</span>(<span class="params">val</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!val) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> val === <span class="string">&#x27;number&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> reg = <span class="regexp">/^-?\d+(\.\d+)?$/</span>;</span><br><span class="line">    <span class="keyword">return</span> reg.test(val);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3、异步"><a href="#3、异步" class="headerlink" title="3、异步"></a>3、异步</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveAfter2Seconds</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      resolve(<span class="string">&#x27;resolved&#x27;</span>);</span><br><span class="line">    &#125;, <span class="number">2000</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">asyncCall</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;calling&#x27;</span>);</span><br><span class="line">  <span class="keyword">let</span> result = <span class="keyword">await</span> resolveAfter2Seconds();</span><br><span class="line">  <span class="built_in">console</span>.log(result);</span><br><span class="line">  <span class="comment">// expected output: &#x27;resolved&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">asyncCall();</span><br></pre></td></tr></table></figure>
+
+<h3 id="4、对象数组排序"><a href="#4、对象数组排序" class="headerlink" title="4、对象数组排序"></a>4、对象数组排序</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 按某个属性排序数组，使用方法 list.sort(compareByProp(&#x27;age&#x27;))</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  如果是多级对象，则可传递多个参数 如按对象req中reqItem对象的age属性排序 req.reqItem.age，则参数为 [&#x27;reqItem&#x27;,&#x27;age&#x27;]</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param </span>props 单个属性字符串或字符串数组（多级对象）</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param </span>desc 是否需要递减排序，默认false，递增排序</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@returns <span class="type">&#123;(function(*, *): number)|(function(*, *): number)&#125;</span></span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">compareByPro</span>(<span class="params">props, desc</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (desc === <span class="literal">undefined</span>) &#123;</span><br><span class="line">        d</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(props) &amp;&amp; props.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">obj1, obj2</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">let</span> value1 = obj1;</span><br><span class="line">            <span class="keyword">let</span> value2 = obj2;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; props.length; i++) &#123;</span><br><span class="line">                <span class="keyword">let</span> p = props[i];</span><br><span class="line">                value1 = value1[p];</span><br><span class="line">                value2 = value2[p];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> desc ? (value2 - value1) : (value1 - value2)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">obj1, obj2</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> desc ? (obj2 - obj1) : (obj1 - obj2)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5、判断字符串与子串"><a href="#5、判断字符串与子串" class="headerlink" title="5、判断字符串与子串"></a>5、判断字符串与子串</h3><ul>
+<li><p>substr(start [，length])方法</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="string">&quot;hello world&quot;</span>.substr(<span class="number">0</span>, <span class="number">2</span>) === <span class="string">&quot;he&quot;</span>)&#123;&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>substring(start [, end])方法</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="string">&quot;hello world&quot;</span>.substring(<span class="number">1</span>, <span class="number">3</span>) === <span class="string">&quot;ell&quot;</span>)&#123;&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>slice(beginIndex[, endIndex])方法</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="string">&quot;hello world&quot;</span>.slice(<span class="number">1</span>,<span class="number">3</span>) === <span class="string">&quot;ell&quot;</span>)&#123;&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>indexOf(beginIndex[, endIndex])方法</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="string">&quot;hello world&quot;</span>.indexOf(<span class="string">&quot;hello&quot;</span>) === <span class="number">0</span>)&#123;&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="6、数组遍历"><a href="#6、数组遍历" class="headerlink" title="6、数组遍历"></a>6、数组遍历</h3><ul>
+<li><p>forEach(): 循环数组，不会改变元素，不会返回新数组</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arr.foreach(<span class="function">(<span class="params">value,index</span>)=&gt;</span>&#123;<span class="built_in">console</span>.log(value, index)&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><p>map(): 遍历数组，对每个元素进行处理，之后返回元素；会返回一个新数组。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> arr2 = arr.map(<span class="function">(<span class="params">value,index</span>)=&gt;</span>&#123;<span class="keyword">let</span> newVal = value+<span class="number">1</span>; <span class="keyword">return</span> newVal&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><p>some(): 遍历数组，在回调函数里进行条件的判断，返回 true 或 false 。当有一个元素满足条件时就停止遍历并返回true；当全部的元素都不满足要求时，返回false</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> bool = arr.some(<span class="function">(<span class="params">value,index</span>)=&gt;</span>&#123;<span class="keyword">return</span> value&gt;<span class="number">3</span>&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><p>every(): 遍历数组，同上。当有一个元素不满足条件时就停止遍历并返回false；当全部元素都满足时，返回true</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> bool = arr.every(<span class="function">(<span class="params">value,index</span>)=&gt;</span>&#123;<span class="keyword">return</span> value &gt; <span class="number">3</span>&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><p>filter(): 遍历数组，在回调函数里进行条件判断，当结果为true时，将该元素返回，组成一个新数组。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> arr2 = arr.filter(<span class="function">(<span class="params">value,index</span>)=&gt;</span>&#123;<span class="keyword">return</span> value &gt; <span class="number">3</span>&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><p>reduce(): 归约</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** * * <span class="doctag">@param </span>preValue 必须，上一次返回的值 * <span class="doctag">@param </span>currentValue 必须，当前遍历的数组元素 * <span class="doctag">@param </span>currentIndex 可选，当前遍历的数组元素下标 * <span class="doctag">@param </span>arr 可选，当前元素所属的数组 * <span class="doctag">@param </span>initialValue 可选，初始值，将作为第一次遍历时preValue的值， *          若没有initialValue，则会少一次遍历（首次遍历时，将从第二个元素开始， *          此时preValue取数组的第一个元素，currentValue取数组的第二个元素，currentIndex从1开始） */</span>array.reduce(<span class="function"><span class="keyword">function</span>(<span class="params">preValue, currentValue, currentIndex, arr</span>), <span class="title">initialValue</span>)</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]arr.reduce(<span class="function">(<span class="params">pre, cur, idx, arr1</span>) =&gt;</span> &#123;    <span class="built_in">console</span>.log(pre, cur, idx)    <span class="keyword">return</span> cur * <span class="number">2</span>&#125;, <span class="number">10</span>)<span class="comment">/* 10 1 02 2 14 3 26 4 38 5 410 6 512 7 6 */</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>]arr.reduce(<span class="function">(<span class="params">pre, cur, idx, arr1</span>) =&gt;</span> &#123;    <span class="built_in">console</span>.log(pre, cur, idx)    <span class="keyword">return</span> cur * <span class="number">2</span>&#125;)<span class="comment">/*1 2 14 3 26 4 38 5 410 6 512 7 6*/</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="7、对象深浅复制"><a href="#7、对象深浅复制" class="headerlink" title="7、对象深浅复制"></a>7、对象深浅复制</h3><h4 id="（1）浅复制"><a href="#（1）浅复制" class="headerlink" title="（1）浅复制"></a>（1）浅复制</h4><p>简单对象的复制：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj1 = &#123; <span class="attr">foo</span>: <span class="string">&quot;foo&quot;</span>, <span class="attr">bar</span>: <span class="string">&quot;bar&quot;</span> &#125;;<span class="keyword">let</span> obj2 = &#123; <span class="attr">hello</span>: <span class="string">&quot;world&quot;</span> &#125;;<span class="comment">// 使用扩展运算符let copy1 = &#123; ...obj1, ...obj2&#125;;// 或使用Object.assign(target, source1, source2...)let copy2 = Object.assign(&#123;&#125;, obj1, obj2);// copy1 与 copy2结果是一样的：&#123; foo: &#x27;foo&#x27;, bar: &#x27;bar&#x27;, hello: &#x27;world&#x27; &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>但如果是复杂一点的对象，如<code>&#123; a: 0 , b: &#123; c: 0 &#125; &#125;</code>这样的，属性对应的值也是一个对象时，上面的方法就有问题了。若使用上面的两种方法，则得到的copy对象中，属性b的值与源对象中b的值共享的是同一个内存，即copy对象中的b的值只是源对象中对应引用的一份拷贝，改了源对象，copy对象会跟着变，反之亦然。这时候可以用下面的深拷贝。</p>
+<h4 id="（2）深复制"><a href="#（2）深复制" class="headerlink" title="（2）深复制"></a>（2）深复制</h4><p>最简单的一种深拷贝，就是先序列化，再反序列化。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123; <span class="attr">a</span>: <span class="number">0</span> , <span class="attr">b</span>: &#123; <span class="attr">c</span>: <span class="number">0</span> &#125; &#125;;<span class="keyword">let</span> copy = <span class="built_in">JSON</span>.parse(<span class="built_in">JSON</span>.stringify(obj));</span><br></pre></td></tr></table></figure>
+
+<h3 id="8、字符串常用操作"><a href="#8、字符串常用操作" class="headerlink" title="8、字符串常用操作"></a>8、字符串常用操作</h3><p>略，详见：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/guoyeqiang/p/8178336.html">https://www.cnblogs.com/guoyeqiang/p/8178336.html</a></p>
+<h3 id="9、异步"><a href="#9、异步" class="headerlink" title="9、异步"></a>9、异步</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveAfter2Seconds</span>(<span class="params"></span>) </span>&#123;    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;        <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;            <span class="keyword">let</span> num = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * <span class="number">10</span>)            <span class="keyword">if</span> (num &gt; <span class="number">5</span>) &#123;                resolve(<span class="string">&#x27;resolve &#x27;</span> + num);            &#125; <span class="keyword">else</span> &#123;                reject(<span class="string">&#x27;reject &#x27;</span> + num)            &#125;        &#125;, <span class="number">2000</span>);    &#125;);&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Promise有两个回调，一个是resolve，一个是reject，前者为成功后的回调，后者为失败后的回调。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">resolveAfter2Seconds().then(<span class="function"><span class="params">res</span> =&gt;</span> &#123;    <span class="built_in">console</span>.log(<span class="string">&#x27;success: &#x27;</span> + res)&#125;).catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;    <span class="built_in">console</span>.log(<span class="string">&#x27;failure: &#x27;</span> + err)&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>异步变同步，关键在于<code>async</code>以及<code>await</code>，下面的代码中，1、2、3是按顺序执行的，2虽是异步，但<code>await</code>的存在使得语句被阻塞在这里，只有2执行完，才会执行3。去掉<code>async</code>或<code>await</code>都是没有效果的，去掉后，2中的<code>result</code>就不再是<code>resolve</code>回调的结果了，而是<code>Promise</code>对象，需要像上面一样使用<code>then</code>或<code>catch</code>来获取结果。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolveAfter2Seconds</span>(<span class="params"></span>) </span>&#123;  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;      resolve(<span class="string">&#x27;resolved&#x27;</span>);    &#125;, <span class="number">2000</span>);  &#125;);&#125;<span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">asyncCall</span>(<span class="params"></span>) </span>&#123;  <span class="built_in">console</span>.log(<span class="string">&#x27;calling&#x27;</span>); <span class="comment">// 1  let result = await resolveAfter2Seconds(); // 2  console.log(result); // 3&#125;asyncCall();</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="10、Object-is-value1-any-value2-any-方法"><a href="#10、Object-is-value1-any-value2-any-方法" class="headerlink" title="10、Object.is(value1:any, value2:any)方法"></a>10、Object.is(value1:any, value2:any)方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Object</span>.is(<span class="string">&#x27;foo&#x27;</span>, <span class="string">&#x27;foo&#x27;</span>);     <span class="comment">// trueObject.is(window, window);   // trueObject.is(&#x27;foo&#x27;, &#x27;bar&#x27;);     // falseObject.is([], []);           // falselet foo = &#123; a: 1 &#125;;let bar = &#123; a: 1 &#125;;Object.is(foo, foo);         // trueObject.is(foo, bar);         // falseObject.is(null, null);       // true// Special CasesObject.is(0, -0);            // falseObject.is(-0, -0);           // trueObject.is(NaN, 0/0);         // true</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="11、对象遍历"><a href="#11、对象遍历" class="headerlink" title="11、对象遍历"></a>11、对象遍历</h3><ul>
+<li><p>Object.keys(obj)</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Object</span>.keys(obj).forEach(<span class="function"><span class="keyword">function</span>(<span class="params">key</span>)</span>&#123;     <span class="built_in">console</span>.log(key,obj[key]);&#125;);</span><br></pre></td></tr></table></figure></li>
+<li><p>for…in</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">     <span class="built_in">console</span>.log(key,obj[key]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>Object.getOwnPropertyNames(obj)</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Object</span>.getOwnPropertyNames(obj).forEach(<span class="function"><span class="keyword">function</span>(<span class="params">key</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(key,obj[key]);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+<li><p>Reflect.ownKeys(obj)</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Reflect</span>.ownKeys(obj).forEach(<span class="function"><span class="keyword">function</span>(<span class="params">key</span>)</span>&#123;</span><br><span class="line">	<span class="built_in">console</span>.log(key,obj[key]);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="12、数组操作"><a href="#12、数组操作" class="headerlink" title="12、数组操作"></a>12、数组操作</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">concat方法：数据连接.将两个数组或者数组和其他数据链接成一个新的数组并返回。</span><br><span class="line">join方法：修改数组的间隔符 数组名.join(<span class="string">&quot;符号&quot;</span>);返回字符串</span><br><span class="line">pop方法：移除最后一个元素，并返回该元素</span><br><span class="line">push方法：在数组的最后添加新的元素，并返回数组的长度</span><br><span class="line">reverse方法：反转数组内容</span><br><span class="line">shift方法：移除第一个元素并返回该元素</span><br><span class="line">unshift方法：在数组的第一个位置添加新的元素，并返回数组的长度。</span><br><span class="line">splice方法：从指定位置开始删除指定数量的内容，同时可以在删除的位置添加新的内容</span><br></pre></td></tr></table></figure>
+
+<h3 id="13、驼峰下划线互转"><a href="#13、驼峰下划线互转" class="headerlink" title="13、驼峰下划线互转"></a>13、驼峰下划线互转</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 下划线转换驼峰</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">toHump</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> name.replace(<span class="regexp">/\_(\w)/g</span>, <span class="function"><span class="keyword">function</span>(<span class="params">all, letter</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> letter.toUpperCase();</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 驼峰转换下划线</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">toLine</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> name.replace(<span class="regexp">/([A-Z])/g</span>,<span class="string">&quot;_$1&quot;</span>).toLowerCase();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#JavaScript" >
+    <span class="tag-code">JavaScript</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/05/24/nginx%E5%9C%A8centos7%E4%B8%8B%E7%9A%84%E5%AE%89%E8%A3%85/">
+        <span class="nav-arrow">← </span>
+        
+          nginx在centos7下的安装
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/10/10/docker%E5%B8%B8%E7%94%A8%E5%AE%B9%E5%99%A8%E5%88%9B%E5%BB%BA%E5%91%BD%E4%BB%A4%E8%AE%B0%E5%BD%95/">
+        
+          docker常用容器创建命令记录
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- No Comment -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#1%E3%80%81%E6%97%B6%E9%97%B4%E6%A0%BC%E5%BC%8F%E5%8C%96"><span class="toc-nav-text">1、时间格式化</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#2%E3%80%81%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E6%98%AF%E6%95%B0%E5%AD%97%E7%B1%BB%E5%9E%8B"><span class="toc-nav-text">2、判断是否是数字类型</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#3%E3%80%81%E5%BC%82%E6%AD%A5"><span class="toc-nav-text">3、异步</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#4%E3%80%81%E5%AF%B9%E8%B1%A1%E6%95%B0%E7%BB%84%E6%8E%92%E5%BA%8F"><span class="toc-nav-text">4、对象数组排序</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#5%E3%80%81%E5%88%A4%E6%96%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%8E%E5%AD%90%E4%B8%B2"><span class="toc-nav-text">5、判断字符串与子串</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#6%E3%80%81%E6%95%B0%E7%BB%84%E9%81%8D%E5%8E%86"><span class="toc-nav-text">6、数组遍历</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#7%E3%80%81%E5%AF%B9%E8%B1%A1%E6%B7%B1%E6%B5%85%E5%A4%8D%E5%88%B6"><span class="toc-nav-text">7、对象深浅复制</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%EF%BC%881%EF%BC%89%E6%B5%85%E5%A4%8D%E5%88%B6"><span class="toc-nav-text">（1）浅复制</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%EF%BC%882%EF%BC%89%E6%B7%B1%E5%A4%8D%E5%88%B6"><span class="toc-nav-text">（2）深复制</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#8%E3%80%81%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C"><span class="toc-nav-text">8、字符串常用操作</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#9%E3%80%81%E5%BC%82%E6%AD%A5"><span class="toc-nav-text">9、异步</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#10%E3%80%81Object-is-value1-any-value2-any-%E6%96%B9%E6%B3%95"><span class="toc-nav-text">10、Object.is(value1:any, value2:any)方法</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#11%E3%80%81%E5%AF%B9%E8%B1%A1%E9%81%8D%E5%8E%86"><span class="toc-nav-text">11、对象遍历</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#12%E3%80%81%E6%95%B0%E7%BB%84%E6%93%8D%E4%BD%9C"><span class="toc-nav-text">12、数组操作</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#13%E3%80%81%E9%A9%BC%E5%B3%B0%E4%B8%8B%E5%88%92%E7%BA%BF%E4%BA%92%E8%BD%AC"><span class="toc-nav-text">13、驼峰下划线互转</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://yang-guirong.github.io/2021/10/10/常用的JavaScript方法/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

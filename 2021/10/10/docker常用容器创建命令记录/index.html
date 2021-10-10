@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="个人技术知识沉淀">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      docker常用容器创建命令记录 | YGR BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>YGR BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>docker常用容器创建命令记录</h2>
+  <p class="post-date">2021-10-10</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>记录下常用的docker容器及其镜像拉取以及启动过程。</p>
+<span id="more"></span>
+
+<h2 id="nacos单机版"><a href="#nacos单机版" class="headerlink" title="nacos单机版"></a>nacos单机版</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1、拉取镜像，目前官方推荐的稳定版本为1.4.1</span></span><br><span class="line">docker pull nacos/nacos-server:1.4.1</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2、创建挂载文件夹，分别用于存放数据、配置、日志信息</span></span><br><span class="line">mkdir -p /opt/software/docker/nacos/data /opt/software/docker/nacos/init.d /opt/software/docker/nacos/logs /opt/software/docker/nacos/conf</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3、先运行一个进行测试</span></span><br><span class="line">docker run -d --name nacostest -p 8848:8848 nacos/nacos-server:1.4.1</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 4、将容器内的配置文件拷贝到宿主机</span></span><br><span class="line">docker cp nacostest:/home/nacos/conf /opt/software/docker/nacos</span><br><span class="line">docker cp nacostest:/home/nacos/init.d /opt/software/docker/nacos</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 5、老规矩，修改前先做备份</span></span><br><span class="line">cp /opt/software/docker/nacos/conf/application.properties /opt/software/docker/nacos/conf/application.properties.bak</span><br><span class="line">cp /opt/software/docker/nacos/init.d/custom.properties /opt/software/docker/nacos/init.d/custom.properties.bak</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 6、暴露监控端点</span></span><br><span class="line">vim /opt/software/docker/nacos/init.d/custom.properties</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 management.endpoints.web.exposure.include=* 前面的注释去掉，保存退出</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 7、先暂时不配置mysql，启动，能正常访问</span></span><br><span class="line">docker run -d -p 8848:8848  \</span><br><span class="line">-e MODE=standalone \</span><br><span class="line">-e PREFER_HOST_MODE=hostname \</span><br><span class="line">-v /opt/software/docker/nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties \</span><br><span class="line">-v /opt/software/docker/nacos/conf/application.properties:/home/nacos/conf/application.properties \</span><br><span class="line">-v /opt/software/docker/nacos/logs:/home/nacos/logs \</span><br><span class="line">-v /opt/software/docker/nacos/data:/home/nacos/data \</span><br><span class="line">--name nacos-derby nacos/nacos-server:1.4.1</span><br><span class="line"><span class="meta">#</span><span class="bash"> nacos默认是使用derby嵌入式数据库</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 8、把刚才启动的容器停掉，防止端口占用，接下来配置mysql</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> （1）首先创建数据库，数据库名称为 nscos_config，编码为 utf8mb4</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> （2）执行建表脚本，脚本地址：https://github.com/alibaba/nacos/blob/develop/distribution/conf/nacos-mysql.sql</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> （3）修改配置文件，添加mysql配置</span></span><br><span class="line">vim /opt/software/docker/nacos/conf/application.properties</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 在文件后添加mysql配置</span></span><br><span class="line">SPRING_DATASOURCE_PLATFORM=mysql</span><br><span class="line">MYSQL_SERVICE_HOST=192.168.192.99 # 这里不能填127.0.0.1，即便mysql和nacos运行于同一个虚拟机中的docker</span><br><span class="line">MYSQL_SERVICE_PORT=3306</span><br><span class="line">MYSQL_SERVICE_DB_NAME=nacos_config</span><br><span class="line">MYSQL_SERVICE_USER=root</span><br><span class="line">MYSQL_SERVICE_PASSWORD=123456</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> （4）启动</span></span><br><span class="line">docker run -d -p 8848:8848  \</span><br><span class="line">-e MODE=standalone \</span><br><span class="line">-e PREFER_HOST_MODE=hostname \</span><br><span class="line">-v /opt/software/docker/nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties \</span><br><span class="line">-v /opt/software/docker/nacos/conf/application.properties:/home/nacos/conf/application.properties \</span><br><span class="line">-v /opt/software/docker/nacos/logs:/home/nacos/logs \</span><br><span class="line">-v /opt/software/docker/nacos/data:/home/nacos/data \</span><br><span class="line">--name nacos-mysql nacos/nacos-server:1.4.1</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 9、打开浏览器，登录nacos控制台，用户名密码都是nacos，新建一个配置文件，发布后到mysql中查看config_info表中记录</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="mysql5-7"><a href="#mysql5-7" class="headerlink" title="mysql5.7"></a>mysql5.7</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 获取镜像</span></span><br><span class="line">docker pull mysql:5.7</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建宿主机数据保存文件夹</span></span><br><span class="line">mkdir -p /opt/software/docker/mysql</span><br><span class="line">mkdir conf data logs</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动</span></span><br><span class="line">docker run -d --name mysql5.7 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=&quot;root&quot;  -v /opt/software/docker/mysql/conf/:/etc/mysql/conf.d -v /opt/software/docker/mysql/data:/var/lib/mysql -v /opt/software/docker/mysql/logs:/logs mysql:5.7</span><br></pre></td></tr></table></figure>
+
+<h2 id="nginx1-21-3"><a href="#nginx1-21-3" class="headerlink" title="nginx1.21.3"></a>nginx1.21.3</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1、拉取镜像</span></span><br><span class="line">docker pull nginx:1.21.3</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2、启动一个测试容器，并能通过http://localhost正常访问（默认80端口）</span></span><br><span class="line">docker run -d -p 80:80 --name nginx-test nginx:1.21.3</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3、通常情况下，为了方便，会将部分关键目录映射到宿主机，所以先创建映射目录</span></span><br><span class="line">mkdir -p /opt/software/dokcer/nginx</span><br><span class="line">cd /opt/software/dokcer/nginx</span><br><span class="line">mkdir www log conf</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 4、将刚才创建的测试容器内的配置文件拷贝到宿主机下</span></span><br><span class="line">docker cp nginx-test:/etc/nginx/nginx.conf /opt/software/dokcer/nginx/conf</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 5、停止测试容器并启动正式容器</span></span><br><span class="line">docker stop nginx-test</span><br><span class="line"></span><br><span class="line">docker run -d -p 80:80 --name nginx-1.21.3 -v /opt/software/dokcer/nginx/www/:/usr/share/nginx/html -v /opt/software/dokcer/nginx/conf/nginx.conf:/etc/nginx/nginx.conf -v /opt/software/dokcer/nginx/logs/:/var/log/nginx nginx:1.21.3</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 6、在/opt/software/dokcer/nginx/www/目录下创建个测试文件试一下</span></span><br><span class="line">vim /opt/software/dokcer/nginx/www/index.html # 创建并编辑文件</span><br><span class="line"><span class="meta">#</span><span class="bash"> 在新建的文件中输入如下</span></span><br><span class="line">&lt;h1&gt;hello world!&lt;/h1&gt;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 再次访问http://localhost，能正常打印hello world！</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="rabbitmq3-7-17"><a href="#rabbitmq3-7-17" class="headerlink" title="rabbitmq3.7.17"></a>rabbitmq3.7.17</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1、拉取镜像，拉取的是带有管理界面的</span></span><br><span class="line">docker pull rabbitmq:3.7.17-management</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2、启动，默认账号密码都是admin</span></span><br><span class="line">docker run -d --name rabbitmq-3.7.17 -p 5672:5672 -p 15672:15672 -v /opt/software/docker/rabbitmq/data:/var/lib/rabbitmq -e RABBITMQ_DEFAULT_USER=admin -e RABBITMQ_DEFAULT_PASS=admin rabbitmq:3.7.17-management</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3、浏览器访问http://localhost:15672即可</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 4、如果需要安装延迟队列插件，参考 https://www.cnblogs.com/geekdc/p/13549613.html</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#docker" >
+    <span class="tag-code">docker</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/10/10/%E5%B8%B8%E7%94%A8%E7%9A%84JavaScript%E6%96%B9%E6%B3%95/">
+        <span class="nav-arrow">← </span>
+        
+          常用的JavaScript方法
+        
+      </a>
+    
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- No Comment -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#nacos%E5%8D%95%E6%9C%BA%E7%89%88"><span class="toc-nav-text">nacos单机版</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#mysql5-7"><span class="toc-nav-text">mysql5.7</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#nginx1-21-3"><span class="toc-nav-text">nginx1.21.3</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#rabbitmq3-7-17"><span class="toc-nav-text">rabbitmq3.7.17</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://yang-guirong.github.io/2021/10/10/docker常用容器创建命令记录/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>
